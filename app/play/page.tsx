@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Navbar from "@/components/common/Navbar";
 import Card from "@/components/common/Card";
-import Shape from "@/components/common/Shape";
 import CategoryCard from "@/components/common/CategoryCard";
 import Button from "@/components/common/Button";
 import AdSlider from "@/components/common/AdSlider";

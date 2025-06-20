@@ -4,6 +4,7 @@
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import Button from "@/components/common/Button";
+import Image from "next/image";
 
 export default function AboutPage() {
   return (  
@@ -39,7 +40,13 @@ export default function AboutPage() {
       <section className="py-16 bg-gray-50 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
-            <img src="/team.jpg" alt="Team working" className="rounded-xl shadow-lg" />
+            <Image
+  src="/team.jpg"
+  alt="Team working"
+  width={600}
+  height={400}
+  className="rounded-xl shadow-lg w-full h-auto object-cover"
+/>
           </div>
           <div>
             <h3 className="text-2xl font-bold text-red-600 mb-4">Our Mission</h3>

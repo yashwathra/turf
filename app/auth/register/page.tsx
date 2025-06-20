@@ -1,23 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import Image from "next/image";
+
+
 
 export default function RegisterPage() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({
-        x: e.clientX / window.innerWidth,
-        y: e.clientY / window.innerHeight,
-      });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  
 
   return (
     <section
@@ -37,7 +25,7 @@ export default function RegisterPage() {
             Join the <span className="text-red-400">GameZone</span> Today!
           </h1>
           <p className="text-lg sm:text-xl font-medium mb-6 drop-shadow-md">
-            Play, Book & Compete – Anytime. <br />
+            Play, Book & Compete Anytime. <br />
             One Account. All Sports.
           </p>
           <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-semibold shadow-md transition-all">
