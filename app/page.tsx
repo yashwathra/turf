@@ -1,95 +1,155 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import Navbar from "@/components/common/Navbar";
+import searchIcon from "@/assets/search.svg";
+import Card from "@/components/common/Card";
+import Button from "@/components/common/Button";
+import Shape from "@/components/common/Shape";
+import AdSlider from "@/components/common/AdSlider";
+import CategoryCard from "@/components/common/CategoryCard";
+import Footer from "@/components/common/Footer";
 
-export default function Home() {
+
+export default function HomePage() {
+  const cards = [
+    {
+      title: "WTP",
+      subtitle: "Jaipur · ₹100/hr",
+      imageUrl: "/turf-image.jpg",
+      icons: ["/wtp1.jpg", "/wtp2.jpg", "/wtp3.jpg"],
+      description: "World Trade Park is a shopping mall in Malviya Nagar, Jaipur, Rajasthan, India.",
+    },
+    {
+      title: "Jawahar Turf",
+      subtitle: "Jaipur · ₹150/hr",
+      imageUrl: "/turf2.jpg",
+      icons: ["/wtp1.jpg", "/wtp2.jpg", "/wtp3.jpg"],
+      description: "A great football turf with night lighting and full security.",
+    },
+  ];
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <>
+      {/* ===== NAVBAR SECTION ===== */}
+      
+        <Navbar />
+      
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+      {/* ===== HERO SECTION ===== */}
+      <section
+        className="relative w-full bg-cover bg-center -mt-[88px] pt-[0px] h-[500px] flex items-center justify-center"
+        style={{ backgroundImage: "url('/bg-image.jpg')" }}
+      >
+        <div className="flex w-full max-w-6xl justify-between items-center text-white px-6">
+          {/* Left: Title */}
+          <div className="text-left max-w-md">
+            <h1 className="text-6xl font-bold">PLAY SPORTS</h1>
+          </div>
+
+          {/* Right: Paragraph */}
+          <div className="text-right max-w-md">
+            <p className="text-lg text-bold">
+              We Are Redefining Sports. Experience The Difference.
+              <br />
+              Now book your sports venue from ₹100
+            </p>
+          </div>
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+
+        {/* Shapes */}
+        <Shape className="w-40 h-40 bg-red-600 rounded-full opacity-100 absolute top-[90%] left-[25%] shadow-[0_0_40px_10px_rgba(239,68,68,0.5)]" />
+        <Shape className="w-80 h-80 bg-red-600 rounded-full opacity-100 absolute top-[65%] left-20" />
+        <Shape className="w-[140px] h-[140px] bg-black rounded-full opacity-100 absolute top-[89.7%] left-[25.5%]" />
+      </section>
+
+
+
+
+
+      {/* ===== SEARCH BOX SECTION ===== */}
+      <section className="relative z-10 -mt-20 flex justify-center">
+        <div className="bg-white shadow-lg rounded-xl px-8 py-6 w-full max-w-5xl min-h-[120px] flex flex-wrap gap-10 items-center justify-center">
+          <select className="border px-4 py-2 rounded-md">
+            <option>Football</option>
+            <option>Cricket</option>
+          </select>
+          <select className="border px-4 py-2 rounded-md">
+            <option>Jaipur</option>
+            <option>Mumbai</option>
+          </select>
+          <input type="date" className="border px-4 py-2 rounded-md" />
+          <select className="border px-4 py-2 rounded-md">
+            <option>1AM - 2AM</option>
+            <option>2AM - 3AM</option>
+          </select>
+          <select className="border px-4 py-2 rounded-md">
+            <option>800₹/hr</option>
+          </select>
+          <button className="bg-red-600 text-white px-8 py-6 rounded-lg text-xl">
+            <img src={searchIcon.src} alt="Search" className="w-8 h-8" />
+          </button>
+        </div>
+      </section>
+
+      {/* ===== CARD SECTION ===== */}
+      {cards.map((card, index) => (
+        <section
+          key={index}
+          className={`w-full px-6 md:px-10 mt-28 flex flex-col-reverse md:flex-row items-center justify-between gap-10 ${index % 2 !== 0 ? "md:flex-row-reverse" : ""
+            }`}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          {/* TEXT SECTION */}
+          <div className="max-w-sm text-center md:text-left md:ml-20 md:mr-20">
+            <h1 className="text-4xl font-extrabold text-red-600">{card.title}</h1>
+            <p className="text-black mt-3 font-medium leading-relaxed">
+              {card.description}
+            </p>
+            <div className="mt-6">
+              <Button>BOOK NOW</Button>
+            </div>
+            <div className="mt-4 text-yellow-400 text-lg">⭐⭐⭐⭐⭐</div>
+          </div>
+
+          {/* CARD + SHAPE */}
+          <div className="relative w-full max-w-sm">
+            {/* 🔴 Shape behind the card */}
+            <div
+              className={`absolute ${index % 2 === 0 ? "-top-8 -left-8" : "-top-8 -right-8"
+                } w-52 h-52 bg-red-600 rounded-[30px] z-0`}
+            ></div>
+
+            {/* 🧾 Card in front */}
+            <div className="relative z-10">
+              <Card
+                title={card.title}
+                subtitle={card.subtitle}
+                imageUrl={card.imageUrl}
+                icons={card.icons}
+              />
+            </div>
+          </div>
+        </section>
+      ))}
+      {/* ===== AD SLIDER SECTION ===== */}
+      <section className="w-full mt-10">
+        <AdSlider />
+      </section>
+      {/* ===== CATEGORY SECTION ===== */}
+      <section className="w-full px-6 md:px-10 mt-20">
+        <h2 className="text-2xl font-extrabold text-center mb-10 text-red-600">
+          PLAY SPORTS
+        </h2>
+        <div className="flex flex-wrap justify-center gap-6">
+          <CategoryCard name="Cricket" icon="/icons/cricket.svg" />
+          <CategoryCard name="Football" icon="/icons/football.svg" />
+          <CategoryCard name="Badminton" icon="/icons/badminton.svg" />
+          <CategoryCard name="Snooker" icon="/icons/snooker.svg" />
+        </div>
+      </section>
+
+      {/* ===== FOOTER SECTION ===== */}
+      <Footer />
+
+
+    </>
   );
 }

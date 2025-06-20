@@ -1,0 +1,130 @@
+'use client';
+
+import { useState } from 'react';
+import Navbar from "@/components/common/Navbar";
+import Card from "@/components/common/Card";
+import Shape from "@/components/common/Shape";
+import CategoryCard from "@/components/common/CategoryCard";
+import Button from "@/components/common/Button";
+import AdSlider from "@/components/common/AdSlider";
+import Footer from "@/components/common/Footer";
+
+const cards = [
+    {
+        title: "WTP",
+        subtitle: "Jaipur · ₹100/hr",
+        imageUrl: "/turf-image.jpg",
+        icons: ["/wtp1.jpg", "/wtp2.jpg", "/wtp3.jpg"],
+    },
+    {
+        title: "Jawahar Turf",
+        subtitle: "Jaipur · ₹150/hr",
+        imageUrl: "/turf2.jpg",
+        icons: ["/wtp1.jpg", "/wtp2.jpg", "/wtp3.jpg"],
+    },
+    {
+        title: "Mumbai Arena",
+        subtitle: "Mumbai · ₹200/hr",
+        imageUrl: "/turf3.jpg",
+        icons: ["/wtp1.jpg", "/wtp2.jpg", "/wtp3.jpg"],
+    },
+    {
+        title: "Chennai Sports Hub",
+        subtitle: "Chennai · ₹180/hr",
+        imageUrl: "/turf4.jpg",
+        icons: ["/wtp1.jpg", "/wtp2.jpg", "/wtp3.jpg"],
+    },
+    {
+        title: "Bangalore Turf",
+        subtitle: "Bangalore · ₹120/hr",
+        imageUrl: "/turf5.jpg",
+        icons: ["/wtp1.jpg", "/wtp2.jpg", "/wtp3.jpg"],
+    },
+    {
+        title: "Delhi Football Ground",
+        subtitle: "Delhi · ₹160/hr",
+        imageUrl: "/turf6.jpg",
+        icons: ["/wtp1.jpg", "/wtp2.jpg", "/wtp3.jpg"],
+    },
+];
+
+export default function PlayPage() {
+    const [sport, setSport] = useState("All");
+    const [location, setLocation] = useState("All");
+
+    const filteredCards = cards.filter(card => {
+        const matchSport = sport === "All" || card.title.toLowerCase().includes(sport.toLowerCase());
+        const matchLocation = location === "All" || card.subtitle.toLowerCase().includes(location.toLowerCase());
+        return matchSport && matchLocation;
+    });
+
+    return (
+        <>
+            <Navbar />
+
+            <section className="relative">
+
+                <div
+                    className="relative w-full bg-cover bg-center -mt-[88px] pt-[0px] h-[500px] flex items-center justify-center"
+                    style={{ backgroundImage: "url('/bg-image.jpg')" }}
+                >
+                    <div className="flex w-full max-w-6xl justify-between items-center text-white px-6">
+                        <div className="text-left max-w-md">
+                            <h1 className="text-6xl font-bold">Let the Game Begin</h1>
+                        </div>
+                        <div className="text-right max-w-md">
+                            <p className="text-lg text-bold">
+                                "Pick your game and book your time"
+                            </p>
+                            <div className="mt-6">
+                                <Button>BOOK NOW</Button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Shapes */}
+                    <Shape className="w-40 h-40 bg-red-600 rounded-full opacity-100 absolute top-[90%] left-[25%]" />
+                    <Shape className="w-80 h-80 bg-red-600 rounded-full opacity-100 absolute top-[65%] left-20" />
+                </div>
+
+                {/* ===== FLOATING CARD SECTION ===== */}
+                <div className="relative z-10 -mt-24 px-6 max-w-6xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                        {filteredCards.map((card, index) => (
+                            <Card
+                                key={index}
+                                title={card.title}
+                                subtitle={card.subtitle}
+                                imageUrl={card.imageUrl}
+                                icons={card.icons}>
+                                <Button>PLAY NOW</Button>
+
+
+                            </Card>
+                        ))}
+
+                    </div>
+                </div>
+            </section>
+            {/* ===== CATEGORY SECTION ===== */}
+            <section className="w-full px-6 md:px-10 mt-20">
+                <h2 className="text-2xl font-extrabold text-center mb-10 text-red-600">
+                    PLAY SPORTS
+                </h2>
+                <div className="flex flex-wrap justify-center gap-6">
+                    <CategoryCard name="Cricket" icon="/icons/cricket.svg" />
+                    <CategoryCard name="Football" icon="/icons/football.svg" />
+                    <CategoryCard name="Badminton" icon="/icons/badminton.svg" />
+                    <CategoryCard name="Snooker" icon="/icons/snooker.svg" />
+                </div>
+            </section>
+            {/* ===== AD SLIDER SECTION ===== */}
+            <section className="w-full mt-10">
+                <AdSlider />
+            </section>
+            {/* ===== FOOTER SECTION ===== */}
+            <Footer />
+
+        </>
+    );
+}
