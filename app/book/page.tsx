@@ -7,6 +7,7 @@ import Shape from "@/components/common/Shape";
 import searchIcon from "@/assets/search.svg";
 import AdSlider from "@/components/common/AdSlider";
 import CategoryCard from "@/components/common/CategoryCard";
+import Image from "next/image";
 
 export default function BookingPage() {
   return (
@@ -58,7 +59,7 @@ export default function BookingPage() {
                         <option>800₹/hr</option>
                       </select>
                       <button className="bg-red-600 text-white px-8 py-6 rounded-lg text-xl">
-                        <img src={searchIcon.src} alt="Search" className="w-8 h-8" />
+                        <Image src={searchIcon} alt="Search" width={32} height={32} />
                       </button>
                     </div>
                   </section>

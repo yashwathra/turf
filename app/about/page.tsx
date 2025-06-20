@@ -19,7 +19,7 @@ export default function AboutPage() {
         <div className="text-white text-center px-4">
           <h1 className="text-5xl font-bold mb-4">About Our Platform</h1>
           <p className="text-lg font-medium max-w-2xl mx-auto">
-            Discover how we're changing the game. Play, book, and enjoy sports like never before — anywhere, anytime.
+            Discover how we are changing the game. Play, book, and enjoy sports like never before — anywhere, anytime.
           </p>
           <div className="mt-6">
             <Button>GET STARTED</Button>
@@ -65,7 +65,7 @@ export default function AboutPage() {
       {/* ===== CONTACT SECTION ===== */}
       <section className="py-20 px-6 max-w-4xl mx-auto text-center">
         <h3 className="text-2xl font-bold text-red-600 mb-6">Have Questions?</h3>
-        <p className="text-gray-700 mb-6">We’d love to hear from you! Reach out via email or follow us on social media.</p>
+        <p className="text-gray-700 mb-6">Wed love to hear from you! Reach out via email or follow us on social media.</p>
         <Button>CONTACT US</Button>
       </section>
 

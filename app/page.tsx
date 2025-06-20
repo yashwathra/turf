@@ -7,6 +7,7 @@ import Shape from "@/components/common/Shape";
 import AdSlider from "@/components/common/AdSlider";
 import CategoryCard from "@/components/common/CategoryCard";
 import Footer from "@/components/common/Footer";
+import Image from "next/image";
 
 
 export default function HomePage() {
@@ -85,7 +86,7 @@ export default function HomePage() {
             <option>800₹/hr</option>
           </select>
           <button className="bg-red-600 text-white px-8 py-6 rounded-lg text-xl">
-            <img src={searchIcon.src} alt="Search" className="w-8 h-8" />
+            <Image src={searchIcon} alt="Search" width={32} height={32} />
           </button>
         </div>
       </section>

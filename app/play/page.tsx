@@ -49,8 +49,9 @@ const cards = [
 ];
 
 export default function PlayPage() {
-    const [sport, setSport] = useState("All");
-    const [location, setLocation] = useState("All");
+   const [sport] = useState("All");
+const [location] = useState("All");
+
 
     const filteredCards = cards.filter(card => {
         const matchSport = sport === "All" || card.title.toLowerCase().includes(sport.toLowerCase());
@@ -74,7 +75,7 @@ export default function PlayPage() {
                         </div>
                         <div className="text-right max-w-md">
                             <p className="text-lg text-bold">
-                                "Pick your game and book your time"
+                                Pick your game and book your time
                             </p>
                             <div className="mt-6">
                                 <Button>BOOK NOW</Button>

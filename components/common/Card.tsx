@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface CardProps {
   title: string;
   subtitle?: string;
@@ -12,9 +14,11 @@ export default function Card({ title, subtitle, imageUrl, children, icons, showD
     <div className="bg-white rounded-2xl border border-gray-300 shadow-xl w-full max-w-sm overflow-hidden transition-transform hover:scale-105">
       {imageUrl && (
         <div className="px-4 pt-4">
-          <img
+          <Image
             src={imageUrl}
             alt={title}
+            width={400}
+            height={200}
             className="w-full h-48 object-cover rounded-lg"
           />
         </div>
@@ -29,9 +33,15 @@ export default function Card({ title, subtitle, imageUrl, children, icons, showD
         {icons && icons.length > 0 && (
           <div className="flex justify-center gap-6 mt-4">
             {icons.map((icon, index) => (
-              <img key={index} src={icon} alt={`icon-${index}`} className="w-10 h-10" />
+              <Image
+                key={index}
+                src={icon}
+                alt={`icon-${index}`}
+                width={40}
+                height={40}
+                className="rounded-full"
+              />
             ))}
-            
           </div>
         )}
 

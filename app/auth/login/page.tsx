@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -26,30 +27,17 @@ export default function LoginPage() {
       }}
     >
       {/* 🏀 Floating Sports Balls */}
-      <img
-        src="/footbal.jpg"
-        alt="football"
-        className="absolute w-24 h-24 top-[10%] left-[5%] transition-transform duration-200"
-        style={{
-          transform: `translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)`,
-        }}
-      />
-      <img
-        src="/cricket-ball.png"
-        alt="cricket"
-        className="absolute w-16 h-16 bottom-[10%] right-[10%] transition-transform duration-200"
-        style={{
-          transform: `translate(${-mousePos.x * 20}px, ${-mousePos.y * 20}px)`,
-        }}
-      />
-      <img
-        src="/tennis-ball.png"
-        alt="tennis"
-        className="absolute w-20 h-20 top-[25%] right-[25%] transition-transform duration-200"
-        style={{
-          transform: `translate(${mousePos.x * 15}px, ${-mousePos.y * 15}px)`,
-        }}
-      />
+      <Image
+  src="/footbal.jpg"
+  alt="football"
+  width={96} // equivalent to w-24 (24 x 4)
+  height={96} // equivalent to h-24
+  className="absolute top-[10%] left-[5%] transition-transform duration-500 ease-out shadow-lg shadow-black/30"
+  style={{
+    transform: `translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)`,
+  }}
+/>
+     
 
       {/* 🔒 Login Content (same as before) */}
       <div className="relative z-10 max-w-6xl w-full flex flex-col lg:flex-row items-center justify-between px-6 lg:px-10 py-10 gap-10">
@@ -60,9 +48,9 @@ export default function LoginPage() {
             <span className="text-white">Player!</span>
           </h1>
           <p className="text-lg font-medium drop-shadow-md">
-            "Your Game, Your Time" <br />
-            "All Games, One Platform" <br />
-            "From Football to Snooker"
+            Your Game, Your Time <br />
+            All Games, One Platform <br />
+            From Football to Snooker
           </p>
           <button className="mt-6 bg-white text-red-600 px-6 py-2 rounded-full font-bold shadow-md hover:bg-red-100 transition">
             EXPLORE
@@ -99,7 +87,7 @@ export default function LoginPage() {
               LOGIN
             </button>
             <p className="text-center text-sm text-white/90">
-              Don’t have an account?{" "}
+              Dont have an account?{" "}
               <Link href="/signup" className="text-blue-200 underline">
                 Sign Up
               </Link>
