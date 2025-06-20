@@ -3,11 +3,10 @@
 
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
-import Shape from "@/components/common/Shape";
 import Button from "@/components/common/Button";
 
 export default function AboutPage() {
-  return (
+  return (  
     <>
       <Navbar />
 
@@ -25,10 +24,6 @@ export default function AboutPage() {
             <Button>GET STARTED</Button>
           </div>
         </div>
-
-        {/* Shapes */}
-        <Shape className="w-40 h-40 bg-red-600 rounded-full opacity-100 absolute top-[90%] left-[25%] shadow-[0_0_40px_10px_rgba(239,68,68,0.5)]" />
-        <Shape className="w-80 h-80 bg-red-600 rounded-full opacity-100 absolute top-[65%] left-20" />
       </section>
 
       {/* ===== ABOUT SECTION ===== */}

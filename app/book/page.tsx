@@ -3,42 +3,22 @@
 
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
-import Shape from "@/components/common/Shape";
 import searchIcon from "@/assets/search.svg";
 import AdSlider from "@/components/common/AdSlider";
 import CategoryCard from "@/components/common/CategoryCard";
 import Image from "next/image";
+import HeroBanner from '@/components/common/HeroBanner';
 
 export default function BookingPage() {
   return (
     <>
       <Navbar />
       {/* ===== HERO SECTION ===== */}
-            <section
-              className="relative w-full bg-cover bg-center -mt-[88px] pt-[0px] h-[500px] flex items-center justify-center"
-              style={{ backgroundImage: "url('/bg-image.jpg')" }}
-            >
-              <div className="flex w-full max-w-6xl justify-between items-center text-white px-6">
-                {/* Left: Title */}
-                <div className="text-left max-w-md">
-                  <h1 className="text-6xl font-bold">PLAY SPORTS</h1>
-                </div>
-      
-                {/* Right: Paragraph */}
-                <div className="text-right max-w-md">
-                  <p className="text-lg text-bold">
-                    We Are Redefining Sports. Experience The Difference.
-                    <br />
-                    Now book your sports venue from ₹100
-                  </p>
-                </div>
-              </div>
-      
-              {/* Shapes */}
-              <Shape className="w-40 h-40 bg-red-600 rounded-full opacity-100 absolute top-[90%] left-[25%] shadow-[0_0_40px_10px_rgba(239,68,68,0.5)]" />
-              <Shape className="w-80 h-80 bg-red-600 rounded-full opacity-100 absolute top-[65%] left-20" />
-              <Shape className="w-[140px] h-[140px] bg-black rounded-full opacity-100 absolute top-[89.7%] left-[25.5%]" />
-            </section>
+            
+            <HeroBanner
+                    title="PLAY SPORTS"
+                    description="We Are Redefining Sports. Experience The Difference.Now book your sports venue from ₹100"
+                    backgroundImage="/bg-image.jpg" />
             {/* ===== SEARCH BOX SECTION ===== */}
                   <section className="relative z-10 -mt-20 flex justify-center">
                     <div className="bg-white shadow-lg rounded-xl px-8 py-6 w-full max-w-5xl min-h-[120px] flex flex-wrap gap-10 items-center justify-center">

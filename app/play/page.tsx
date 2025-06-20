@@ -7,6 +7,7 @@ import Shape from "@/components/common/Shape";
 import CategoryCard from "@/components/common/CategoryCard";
 import Button from "@/components/common/Button";
 import AdSlider from "@/components/common/AdSlider";
+import HeroBanner from '@/components/common/HeroBanner';
 import Footer from "@/components/common/Footer";
 
 const cards = [
@@ -49,8 +50,8 @@ const cards = [
 ];
 
 export default function PlayPage() {
-   const [sport] = useState("All");
-const [location] = useState("All");
+    const [sport] = useState("All");
+    const [location] = useState("All");
 
 
     const filteredCards = cards.filter(card => {
@@ -63,50 +64,32 @@ const [location] = useState("All");
         <>
             <Navbar />
 
-            <section className="relative">
+            <HeroBanner
+                title="Let the Game Begin"
+                description="Pick your game and book your time"
+                backgroundImage="/bg-image.jpg"
+            >
+                <Button>BOOK NOW</Button>
+            </HeroBanner>
 
-                <div
-                    className="relative w-full bg-cover bg-center -mt-[88px] pt-[0px] h-[500px] flex items-center justify-center"
-                    style={{ backgroundImage: "url('/bg-image.jpg')" }}
-                >
-                    <div className="flex w-full max-w-6xl justify-between items-center text-white px-6">
-                        <div className="text-left max-w-md">
-                            <h1 className="text-6xl font-bold">Let the Game Begin</h1>
-                        </div>
-                        <div className="text-right max-w-md">
-                            <p className="text-lg text-bold">
-                                Pick your game and book your time
-                            </p>
-                            <div className="mt-6">
-                                <Button>BOOK NOW</Button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Shapes */}
-                    <Shape className="w-40 h-40 bg-red-600 rounded-full opacity-100 absolute top-[90%] left-[25%]" />
-                    <Shape className="w-80 h-80 bg-red-600 rounded-full opacity-100 absolute top-[65%] left-20" />
-                </div>
-
-                {/* ===== FLOATING CARD SECTION ===== */}
-                <div className="relative z-10 -mt-24 px-6 max-w-6xl mx-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {filteredCards.map((card, index) => (
-                            <Card
-                                key={index}
-                                title={card.title}
-                                subtitle={card.subtitle}
-                                imageUrl={card.imageUrl}
-                                icons={card.icons}>
-                                <Button>PLAY NOW</Button>
-
-
-                            </Card>
-                        ))}
-
-                    </div>
+            {/* Floating cards section */}
+            <section className="relative z-10 -mt-24 px-6 max-w-6xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    {filteredCards.map((card, index) => (
+                        <Card
+                            key={index}
+                            title={card.title}
+                            subtitle={card.subtitle}
+                            imageUrl={card.imageUrl}
+                            icons={card.icons}
+                        >
+                            <Button>PLAY NOW</Button>
+                        </Card>
+                    ))}
                 </div>
             </section>
+
+
             {/* ===== CATEGORY SECTION ===== */}
             <section className="w-full px-6 md:px-10 mt-20">
                 <h2 className="text-2xl font-extrabold text-center mb-10 text-red-600">
