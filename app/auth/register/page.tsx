@@ -1,25 +1,53 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-
-
 export default function RegisterPage() {
-  
+  const router = useRouter();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
+
+      alert("✅ Registered successfully!");
+      router.push("/auth/login");
+    } catch (err: any) {
+      alert("❌ " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section
       className="relative min-h-screen flex items-center justify-center bg-cover bg-center overflow-hidden"
       style={{ backgroundImage: "url('/bg-image.jpg')" }}
     >
-      {/* 🌑 Background Overlay */}
       <div className="absolute inset-0 bg-black/50 z-0" />
-
-     
-
-      {/* 🧾 Register Content */}
       <div className="relative z-10 max-w-6xl w-full flex flex-col lg:flex-row items-center justify-between px-6 lg:px-12 py-12 gap-12">
-        {/* Left Panel Text */}
         <div className="lg:w-1/2 text-white text-center lg:text-left">
           <h1 className="text-4xl sm:text-5xl font-extrabold mb-4 drop-shadow-md">
             Join the <span className="text-red-400">GameZone</span> Today!
@@ -33,15 +61,16 @@ export default function RegisterPage() {
           </button>
         </div>
 
-        {/* Right Panel: Register Form */}
         <div className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 shadow-2xl">
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleRegister}>
             <h2 className="text-3xl font-bold text-center text-white">Create Account</h2>
 
             <div>
               <label className="block mb-1 text-white font-medium">Full Name</label>
               <input
                 type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full px-4 py-3 rounded-md bg-white/90 text-black placeholder-gray-600 outline-none"
                 placeholder="Enter your name"
               />
@@ -51,6 +80,8 @@ export default function RegisterPage() {
               <label className="block mb-1 text-white font-medium">Email</label>
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-md bg-white/90 text-black placeholder-gray-600 outline-none"
                 placeholder="Enter your email"
               />
@@ -60,6 +91,8 @@ export default function RegisterPage() {
               <label className="block mb-1 text-white font-medium">Password</label>
               <input
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-md bg-white/90 text-black placeholder-gray-600 outline-none"
                 placeholder="Create a password"
               />
@@ -69,6 +102,8 @@ export default function RegisterPage() {
               <label className="block mb-1 text-white font-medium">Confirm Password</label>
               <input
                 type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-md bg-white/90 text-black placeholder-gray-600 outline-none"
                 placeholder="Repeat password"
               />
@@ -76,9 +111,12 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              className="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition-all"
+              disabled={loading}
+              className={`w-full py-3 rounded-lg font-bold transition-all ${
+                loading ? "bg-gray-400" : "bg-red-600 hover:bg-red-700"
+              } text-white`}
             >
-              REGISTER
+              {loading ? "Registering..." : "REGISTER"}
             </button>
 
             <p className="text-center text-sm text-white">
