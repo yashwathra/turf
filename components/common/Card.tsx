@@ -11,7 +11,8 @@ interface CardProps {
 
 export default function Card({ title, subtitle, imageUrl, children, icons, showDots = true }: CardProps) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-300 shadow-xl w-full max-w-sm overflow-hidden transition-transform hover:scale-105">
+   <div className="bg-white rounded-2xl border border-gray-300 shadow-xl w-full overflow-hidden transition-transform hover:scale-105">
+
       {imageUrl && (
         <div className="px-4 pt-4">
           <Image

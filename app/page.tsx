@@ -1,5 +1,6 @@
 "use client";
 import Navbar from "@/components/common/Navbar";
+import { Suspense } from "react";
 import Card from "@/components/common/Card";
 import Button from "@/components/common/Button";
 import AdSlider from "@/components/common/AdSlider";
@@ -37,7 +38,9 @@ export default function HomePage() {
         description="We Are Redefining Sports. Experience The Difference.Now book your sports venue from ₹100"
         backgroundImage="/bg-image.jpg" />
       {/* ===== SEARCH BOX SECTION ===== */}
-      <SearchBox />
+      <Suspense fallback={<div className="text-center py-8">Loading Search Box...</div>}>
+        <SearchBox />
+      </Suspense>
       {/* ===== CARD SECTION ===== */}
       {cards.map((card, index) => (
         <section
