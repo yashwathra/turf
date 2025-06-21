@@ -31,22 +31,23 @@ export default function SearchBox({
 
   // ✅ Prefill values from query params
   useEffect(() => {
-    if (pathname === '/book') {
-      const sport = params.get('sport') || '';
-      const city = params.get('city') || '';
-      const date = params.get('date') || '';
-      const slot = params.get('slot') || '';
-      const rate = params.get('rate') || '';
+  if (pathname === '/book' && params) {
+    const sport = params.get('sport') || '';
+    const city = params.get('city') || '';
+    const date = params.get('date') || '';
+    const slot = params.get('slot') || '';
+    const rate = params.get('rate') || '';
 
-      setSelectedSport(sport);
-      setSelectedCity(city);
-      setSelectedDate(date);
-      setSelectedSlot(slot);
-      setSelectedRate(rate);
+    setSelectedSport(sport);
+    setSelectedCity(city);
+    setSelectedDate(date);
+    setSelectedSlot(slot);
+    setSelectedRate(rate);
 
-      if (sport && city && date) setShowResult(true);
-    }
-  }, [params, pathname]);
+    if (sport && city && date) setShowResult(true);
+  }
+}, [params, pathname]);
+
   const handleSearch = () => {
     if (!selectedSport || !selectedCity || !selectedDate) {
       alert('Please fill in sport, city, and date before searching.');

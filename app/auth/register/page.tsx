@@ -13,11 +13,16 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (!name || !email || !password || !confirmPassword) {
+      alert("❌ All fields are required.");
+      return;
+    }
+
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      alert("❌ Passwords do not match");
       return;
     }
 
@@ -34,8 +39,12 @@ export default function RegisterPage() {
 
       alert("✅ Registered successfully!");
       router.push("/auth/login");
-    } catch (err: any) {
-      alert("❌ " + err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert("❌ " + err.message);
+      } else {
+        alert("❌ Something went wrong.");
+      }
     } finally {
       setLoading(false);
     }
@@ -70,7 +79,7 @@ export default function RegisterPage() {
               <input
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
                 className="w-full px-4 py-3 rounded-md bg-white/90 text-black placeholder-gray-600 outline-none"
                 placeholder="Enter your name"
               />
@@ -81,7 +90,7 @@ export default function RegisterPage() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-md bg-white/90 text-black placeholder-gray-600 outline-none"
                 placeholder="Enter your email"
               />
@@ -92,7 +101,7 @@ export default function RegisterPage() {
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-md bg-white/90 text-black placeholder-gray-600 outline-none"
                 placeholder="Create a password"
               />
@@ -103,7 +112,7 @@ export default function RegisterPage() {
               <input
                 type="password"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-md bg-white/90 text-black placeholder-gray-600 outline-none"
                 placeholder="Repeat password"
               />

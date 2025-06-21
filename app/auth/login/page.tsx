@@ -1,15 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (!email || !password) {
+      alert("❌ Please enter both email and password.");
+      return;
+    }
+
+    setLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -21,9 +30,11 @@ export default function LoginPage() {
       if (!res.ok) throw new Error(data.error || "Login failed");
 
       alert("✅ Login successful!");
-      // Optionally: Redirect to dashboard (e.g., useRouter().push("/dashboard"))
-    } catch (err: any) {
-      alert("❌ " + err.message);
+      router.push("/dashboard"); // ✅ Update as needed
+    } catch (error) {
+      alert("❌ " + (error instanceof Error ? error.message : "An error occurred"));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,7 +68,7 @@ export default function LoginPage() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-md bg-white/90 text-black placeholder-gray-600 outline-none"
                 placeholder="Enter your email"
               />
@@ -68,7 +79,7 @@ export default function LoginPage() {
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-md bg-white/90 text-black placeholder-gray-600 outline-none"
                 placeholder="Enter your password"
               />
@@ -80,9 +91,12 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition-all"
+              disabled={loading}
+              className={`w-full py-3 rounded-lg font-bold transition-all ${
+                loading ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+              }`}
             >
-              LOGIN
+              {loading ? "Logging in..." : "LOGIN"}
             </button>
 
             <p className="text-center text-sm text-white">

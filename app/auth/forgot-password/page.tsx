@@ -31,9 +31,8 @@ export default function ForgotPasswordPage() {
       } else {
         setMessage("❌ " + data.error);
       }
-    } catch (err) {
-      setMessage("❌ Something went wrong.");
-    } finally {
+    } 
+    finally {
       setLoading(false);
     }
   };
@@ -59,9 +58,7 @@ export default function ForgotPasswordPage() {
       } else {
         setMessage("❌ " + data.error);
       }
-    } catch (err) {
-      setMessage("❌ Something went wrong.");
-    } finally {
+    }  finally {
       setLoading(false);
     }
   };
