@@ -30,11 +30,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "GameZone Password Reset OTP",
-      html: `<h3>Your OTP is:</h3><p style="font-size:20px;"><b>${otp}</b></p>`,
-    });
+  from: `"GameZone ⚽" <${process.env.EMAIL_USER}>`,
+  to: email,
+  subject: "🔐 Reset Your GameZone Password",
+  html: `
+    <div style="font-family: Arial, sans-serif; padding: 0; margin: 0; background: #f3f4f6;">
+      <table style="max-width: 600px; margin: 40px auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;">
+        <tr>
+          <td style="background-color: #dc2626; color: white; text-align: center; padding: 20px 40px;">
+            <h1 style="margin: 0; font-size: 24px;">🏟️ GameZone - Password Reset</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 30px 40px; color: #111827;">
+            <p style="font-size: 16px;">Hello,</p>
+            <p style="font-size: 16px;">
+              You (or someone else) requested to reset your GameZone account password. Please use the OTP below to complete the process:
+            </p>
+            <div style="margin: 30px 0; text-align: center;">
+              <span style="font-size: 28px; font-weight: bold; letter-spacing: 4px; background: #fef3c7; color: #b45309; padding: 10px 20px; border-radius: 8px; display: inline-block;">
+                ${otp}
+              </span>
+            </div>
+            <p style="font-size: 15px; color: #374151;">
+              This OTP is valid for a limited time. If you did not request a password reset, you can safely ignore this email.
+            </p>
+            <p style="margin-top: 30px;">Stay sporty,<br><b>GameZone Team</b></p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #f9fafb; color: #6b7280; text-align: center; padding: 16px; font-size: 12px;">
+            &copy; ${new Date().getFullYear()} GameZone. All rights reserved.
+          </td>
+        </tr>
+      </table>
+    </div>
+  `,
+});
+
 
     res.status(200).json({ message: "OTP sent to email" });
   } catch (err) {

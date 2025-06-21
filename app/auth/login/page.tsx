@@ -30,7 +30,7 @@ export default function LoginPage() {
       if (!res.ok) throw new Error(data.error || "Login failed");
 
       alert("✅ Login successful!");
-      router.push("/dashboard"); // ✅ Update as needed
+      router.push("/"); 
     } catch (error) {
       alert("❌ " + (error instanceof Error ? error.message : "An error occurred"));
     } finally {
