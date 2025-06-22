@@ -30,7 +30,15 @@ export default function LoginPage() {
       if (!res.ok) throw new Error(data.error || "Login failed");
 
       alert("✅ Login successful!");
-      window.location.href = "/"; 
+
+if (data?.user?.role === "admin") {
+  window.location.href = "/dashboard/admin";
+} else if (data?.user?.role === "owner") {
+  window.location.href = "/dashboard/owner";
+} else {
+  window.location.href = "/";
+}
+
     } catch (error) {
       alert("❌ " + (error instanceof Error ? error.message : "An error occurred"));
     } finally {

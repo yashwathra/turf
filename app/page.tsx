@@ -74,7 +74,7 @@ export default function HomePage() {
                 title={card.title}
                 subtitle={card.subtitle}
                 imageUrl={card.imageUrl}
-                icons={card.icons}
+                
               />
             </div>
           </div>

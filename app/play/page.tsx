@@ -80,7 +80,7 @@ export default function PlayPage() {
                             title={card.title}
                             subtitle={card.subtitle}
                             imageUrl={card.imageUrl}
-                            icons={card.icons}
+                            
                         >
                             <Button>PLAY NOW</Button>
                         </Card>

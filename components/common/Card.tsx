@@ -3,16 +3,25 @@ import Image from "next/image";
 interface CardProps {
   title: string;
   subtitle?: string;
+  description?: string;
   imageUrl?: string;
+  sports?: string[];
   children?: React.ReactNode;
-  icons?: string[];
-  showDots?: boolean; // Optional
+  showDots?: boolean;
 }
 
-export default function Card({ title, subtitle, imageUrl, children, icons, showDots = true }: CardProps) {
+export default function Card({
+  title,
+  subtitle,
+  description,
+  imageUrl,
+  sports = [],
+  children,
+  showDots = true,
+}: CardProps) {
   return (
-   <div className="bg-white rounded-2xl border border-gray-300 shadow-xl w-full overflow-hidden transition-transform hover:scale-105">
-
+    <div className="bg-white rounded-2xl border border-gray-300 shadow-xl w-full overflow-hidden transition-transform hover:scale-105">
+      {/* Image */}
       {imageUrl && (
         <div className="px-4 pt-4">
           <Image
@@ -25,27 +34,30 @@ export default function Card({ title, subtitle, imageUrl, children, icons, showD
         </div>
       )}
 
-      <div className="p-4">
-        <h2 className="text-xl font-bold text-gray-800 text-center">{title}</h2>
-        {subtitle && <p className="text-sm text-gray-500 text-center mt-1">{subtitle}</p>}
+      {/* Content */}
+      <div className="p-4 text-center">
+        <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+        {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
+        {description && <p className="text-sm text-gray-600 mt-2">{description}</p>}
 
+        {/* Children */}
         <div className="mt-4 flex justify-center">{children}</div>
 
-        {icons && icons.length > 0 && (
-          <div className="flex justify-center gap-6 mt-4">
-            {icons.map((icon, index) => (
-              <Image
+        {/* Sports Badges */}
+        {sports.length > 0 && (
+          <div className="flex justify-center flex-wrap gap-2 mt-4">
+            {sports.map((sport, index) => (
+              <span
                 key={index}
-                src={icon}
-                alt={`icon-${index}`}
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
+                className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold"
+              >
+                {sport}
+              </span>
             ))}
           </div>
         )}
 
+        {/* Bottom Dots */}
         {showDots && (
           <div className="flex justify-center gap-2 mt-4">
             <div className="w-3 h-3 bg-red-600 rounded-sm" />
