@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,13 +23,14 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
+        credentials: "include"
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Login failed");
 
       alert("✅ Login successful!");
-      router.push("/"); 
+      window.location.href = "/"; 
     } catch (error) {
       alert("❌ " + (error instanceof Error ? error.message : "An error occurred"));
     } finally {
