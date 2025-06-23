@@ -6,5 +6,5 @@ async function generateHash(password: string) {
   console.log(`${password} → ${hash}`);
 }
 
-generateHash("admin123");
-generateHash("owner123");
+generateHash("yash123");
+

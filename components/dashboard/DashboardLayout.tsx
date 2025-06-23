@@ -2,13 +2,10 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import jwt from "jsonwebtoken";
 
-type Props = {
-  userRole: "admin" | "owner" | "user";
-  children: ReactNode;
-};
-
+// Define role-based nav items
 const navItems = {
   user: [
     { name: "🏠 My Bookings", href: "/dashboard/user/bookings" },
@@ -26,16 +23,40 @@ const navItems = {
   ],
 };
 
-export default function DashboardLayout({ userRole, children }: Props) {
+// ✅ Type for decoded JWT
+interface DecodedToken {
+  role?: "admin" | "owner" | "user";
+}
+
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const links = navItems[userRole] || [];
+  const [role, setRole] = useState<"admin" | "owner" | "user" | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/auth/login");
+      return;
+    }
+
+    try {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setRole(decoded?.role || "user");
+    } catch {
+      router.push("/auth/login");
+    }
+  }, [router]); // ✅ Added router as dependency
+
+  const links = role ? navItems[role] : [];
 
   const handleLogout = async () => {
-    // 🧽 Clear cookie/session from server
-    await fetch("/api/auth/logout", { method: "POST" }); // or GET if that’s what you use
-    router.push("/auth/login"); // Redirect to login page
+    await fetch("/api/auth/logout", { method: "POST" });
+    localStorage.removeItem("token");
+    router.push("/auth/login");
   };
+
+  if (!role) return null;
 
   return (
     <div className="flex min-h-screen">
@@ -43,6 +64,18 @@ export default function DashboardLayout({ userRole, children }: Props) {
       <aside className="w-64 bg-red-600 text-white p-6 shadow-md flex flex-col justify-between">
         <div>
           <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
+
+          {/* 🏠 Home Link */}
+          <Link
+            href={`/dashboard/${role}`}
+            className={`block px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition ${
+              pathname === `/dashboard/${role}` ? "bg-white text-red-600 font-bold" : ""
+            }`}
+          >
+            🏠 Dashboard Home
+          </Link>
+
+          {/* 🔗 Dynamic Links */}
           {links.map((link) => (
             <Link
               key={link.href}
@@ -56,7 +89,7 @@ export default function DashboardLayout({ userRole, children }: Props) {
           ))}
         </div>
 
-        {/* 🚪 Logout Button */}
+        {/* 🚪 Logout */}
         <button
           onClick={handleLogout}
           className="mt-6 w-full text-left px-4 py-2 rounded-lg bg-red-800 hover:bg-red-700 transition font-medium"

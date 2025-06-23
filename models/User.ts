@@ -4,7 +4,15 @@ const UserSchema = new mongoose.Schema({
   name: { type: String },
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['admin', 'owner', 'user'], default: 'user' },
+  role: {
+    type: String,
+    enum: ['admin', 'owner', 'user'],
+    default: 'user',
+  },
+  active: {
+    type: Boolean,
+    default: true, // ✅ New field: user is active by default
+  },
 }, { timestamps: true });
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);
