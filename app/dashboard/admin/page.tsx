@@ -17,6 +17,12 @@ export default function AdminDashboardPage() {
         </Link>  
 
         {/* View All Turfs (future) */}
+        <Link href="/dashboard/admin/turfs">
+          <div className="p-6 bg-white rounded shadow hover:shadow-md transition cursor-pointer">
+            <h2 className="text-red-600 font-semibold text-lg mb-1">🌍 All Turfs</h2>
+            <p className="text-sm text-gray-600">View and manage all turfs</p>
+          </div>
+        </Link>
         <div className="p-6 bg-gray-100 rounded shadow opacity-60 cursor-not-allowed">
           <h2 className="text-gray-400 font-semibold text-lg mb-1">🌍 All Turfs</h2>
           <p className="text-sm text-gray-500">Coming Soon</p>

@@ -12,9 +12,9 @@ const navItems = {
     { name: "👤 Profile", href: "/profile" },
   ],
   owner: [
-    { name: "🌿 My Turfs", href: "/dashboard/owner/turfs" },
+    { name: "🌿 My Turfs", href: "/dashboard/owner/turf" },
     { name: "📅 Turf Bookings", href: "/dashboard/owner/bookings" },
-    { name: "➕ Add Turf", href: "/turf/create" },
+    { name: "➕ Add Turf", href: "/dashboard/owner/turf/create" },
   ],
   admin: [
     { name: "👥 Users", href: "/dashboard/admin/users" },

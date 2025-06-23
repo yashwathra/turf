@@ -60,7 +60,7 @@ export default function Navbar() {
       rounded-full shadow-md border backdrop-blur-md transition-colors duration-300
       ${scrolled ? "bg-black/50 text-white border-white" : "bg-white/30 text-white border-white/40"}`}
     >
-      <div className="text-2xl font-bold">TURF</div>
+      <div className="text-2xl font-bold">GreenPlay</div>
 
       {/* Desktop Nav */}
       <div className="hidden md:flex absolute inset-0 justify-center items-center pointer-events-none">

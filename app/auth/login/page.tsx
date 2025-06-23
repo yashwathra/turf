@@ -63,9 +63,9 @@ export default function LoginPage() {
             All Sports One Place. <br />
             From Football to Snooker 🎱
           </p>
-          <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-semibold shadow-md transition-all">
+          <Link href="/"><button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-semibold shadow-md transition-all">
             EXPLORE
-          </button>
+          </button></Link>
         </div>
 
         <div className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 shadow-2xl">
