@@ -7,7 +7,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,16 +28,17 @@ export default function LoginPage() {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Login failed");
+      localStorage.setItem("token", data.token);
 
       alert("✅ Login successful!");
 
-if (data?.user?.role === "admin") {
-  window.location.href = "/dashboard/admin";
-} else if (data?.user?.role === "owner") {
-  window.location.href = "/dashboard/owner";
-} else {
-  window.location.href = "/";
-}
+      if (data?.user?.role === "admin") {
+        window.location.href = "/dashboard/admin";
+      } else if (data?.user?.role === "owner") {
+        window.location.href = "/dashboard/owner";
+      } else {
+        window.location.href = "/";
+      }
 
     } catch (error) {
       alert("❌ " + (error instanceof Error ? error.message : "An error occurred"));
@@ -100,9 +101,8 @@ if (data?.user?.role === "admin") {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 rounded-lg font-bold transition-all ${
-                loading ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
-              }`}
+              className={`w-full py-3 rounded-lg font-bold transition-all ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+                }`}
             >
               {loading ? "Logging in..." : "LOGIN"}
             </button>

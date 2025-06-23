@@ -1,9 +1,22 @@
 import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext"; 
+import { AuthProvider } from "@/context/AuthContext";
+
+export const metadata = {
+  title: "Turf Booking App | Book Your Game Easily",
+  description: "Turf Booking App helps players and turf owners manage, book, and update sports turfs with ease.",
+  
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="description" content={metadata.description} />
+        <meta name="author" content="Turf Booking Team" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta charSet="UTF-8" />
+        <title>{metadata.title}</title>
+      </head>
       <body>
         <AuthProvider>
           {children}

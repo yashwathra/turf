@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const token = jwt.sign(
       {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -37,20 +37,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       secure: false,
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24, // 1 day
+      maxAge: 60 * 60 * 24, 
     });
 
     res.setHeader("Set-Cookie", cookie);
 
     return res.status(200).json({
-      message: "Login successful",
-      user: {
-        id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
+  message: "Login successful",
+  token, 
+  user: {
+    id: user._id.toString(),
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  },
+});
+
   } catch (err) {
     console.error("Login Error:", err);
     return res.status(500).json({ error: "Something went wrong" });

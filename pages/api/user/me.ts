@@ -1,11 +1,14 @@
-// pages/api/auth/me.ts
 import { verify } from "jsonwebtoken";
 import { parse } from "cookie";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const cookies = parse(req.headers.cookie || "");
-  const token = cookies.token;
+  const authHeader = req.headers.authorization;
+  const headerToken = authHeader?.split(" ")[1];
+  const cookieToken = cookies.token;
+
+  const token = headerToken || cookieToken;
 
   if (!token) return res.status(401).json({ error: "Unauthorized" });
 
