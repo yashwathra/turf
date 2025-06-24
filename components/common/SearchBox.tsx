@@ -1,198 +1,235 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import searchIcon from '@/public/search.svg';
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import searchIcon from "@/public/search.svg";
 
-interface SearchBoxProps {
-  sports?: string[];
-  cities?: string[];
-  timeslots?: string[];
-  rates?: string[];
+interface Turf {
+  _id: string;
+  name: string;
+  city: string;
+  sports: string[];
+  ratePerHour: number;
+  imageUrl?: string;
+  description?: string;
 }
 
-export default function SearchBox({
-  sports = ['Football', 'Cricket'],
-  cities = ['Jaipur', 'Mumbai'],
-  timeslots = ['1AM - 2AM', '2AM - 3AM'],
-  rates = ['800₹/hr'],
-}: SearchBoxProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const params = useSearchParams();
+export default function SearchBox() {
+  const [cities, setCities] = useState<string[]>([]);
+  const [turfs, setTurfs] = useState<Turf[]>([]);
+  const [sports, setSports] = useState<string[]>([]);
 
-  const [selectedSport, setSelectedSport] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
-  const [selectedDate, setSelectedDate] = useState('');
-  const [selectedSlot, setSelectedSlot] = useState('');
-  const [selectedRate, setSelectedRate] = useState('');
-  const [showResult, setShowResult] = useState(false);
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedTurf, setSelectedTurf] = useState<Turf | null>(null);
+  const [selectedSport, setSelectedSport] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
 
-  // ✅ Prefill values from query params
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [selectedSlot, setSelectedSlot] = useState("");
+
+  const [showSlots, setShowSlots] = useState(false);
+
   useEffect(() => {
-  if (pathname === '/book' && params) {
-    const sport = params.get('sport') || '';
-    const city = params.get('city') || '';
-    const date = params.get('date') || '';
-    const slot = params.get('slot') || '';
-    const rate = params.get('rate') || '';
+    fetch("/api/turf/cities")
+      .then((res) => res.json())
+      .then((data) => setCities(data.cities || []));
+  }, []);
 
-    setSelectedSport(sport);
-    setSelectedCity(city);
-    setSelectedDate(date);
-    setSelectedSlot(slot);
-    setSelectedRate(rate);
+  useEffect(() => {
+    if (!selectedCity) return;
+    fetch(`/api/turf/byCity?city=${selectedCity}`)
+      .then((res) => res.json())
+      .then((data) => setTurfs(data.turfs || []));
+  }, [selectedCity]);
 
-    if (sport && city && date) setShowResult(true);
-  }
-}, [params, pathname]);
+  useEffect(() => {
+    if (!selectedTurf) return;
 
-  const handleSearch = () => {
-    if (!selectedSport || !selectedCity || !selectedDate) {
-      alert('Please fill in sport, city, and date before searching.');
+    fetch(`/api/turf/${selectedTurf._id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setSports(data.sports || []);
+        setSelectedSport(data.sports?.[0] || "");
+      });
+  }, [selectedTurf]);
+
+  const handleSearch = async () => {
+    if (!selectedTurf || !selectedDate) return alert("Please fill all fields");
+
+    const res = await fetch(
+      `/api/slots?turfId=${selectedTurf._id}&date=${selectedDate}`
+    );
+    const data = await res.json();
+
+    setAvailableSlots(data.availableSlots || []);
+    setBookedSlots(data.bookedSlots || []);
+    setShowSlots(true);
+  };
+
+  const handleBooking = async () => {
+    if (!selectedTurf || !selectedSlot) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("⚠️ Please login to book a turf");
+      window.location.href = "/auth/login";
       return;
     }
 
-    const searchParams = new URLSearchParams({
-      sport: selectedSport,
-      city: selectedCity,
-      date: selectedDate,
-      slot: selectedSlot,
-      rate: selectedRate,
-    });
+    try {
+      const res = await fetch("/api/booking/book", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          turfId: selectedTurf._id,
+          date: selectedDate,
+          slot: selectedSlot,
+          price: selectedTurf.ratePerHour,
+        }),
+      });
 
-    router.push(`/book?${searchParams.toString()}`);
-    setShowResult(true);
+      const data = await res.json();
+      if (res.ok) {
+        alert("✅ Booking successful");
+        setShowSlots(false);
+      } else {
+        alert(`❌ ${data.message}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    }
   };
 
-  const isBookingPage = pathname === '/book';
-
   return (
-    <section className="relative z-10 -mt-20 flex justify-center px-4 transition-all duration-500">
-      <div className={`bg-white shadow-lg rounded-xl overflow-hidden w-full max-w-6xl transition-all duration-500 ${showResult ? 'max-h-[2000px]' : 'max-h-[400px]'}`}>
-        
-        {/* 🔍 Filter Fields */}
-        <div className="px-6 py-6 flex flex-col md:flex-row flex-wrap gap-4 md:gap-6 items-center justify-center">
+    <section className="absolute bottom-[20%] left-1/2 transform -translate-x-1/2 z-20 w-full px-4">
+      <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-4xl mx-auto">
+        {/* Step 1: Filters */}
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-4">
           <select
-            className="border px-4 py-2 rounded-md w-full md:w-auto"
-            value={selectedSport}
-            onChange={(e) => setSelectedSport(e.target.value)}
+            value={selectedCity}
+            onChange={(e) => {
+              setSelectedCity(e.target.value);
+              setSelectedTurf(null);
+              setShowSlots(false);
+            }}
+            className="border px-4 py-2 rounded-md"
           >
-            <option value="">Select Sport</option>
-            {sports.map((sport) => (
-              <option key={sport} value={sport}>{sport}</option>
+            <option value="">Select City</option>
+            {cities.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </select>
 
           <select
-            className="border px-4 py-2 rounded-md w-full md:w-auto"
-            value={selectedCity}
-            onChange={(e) => setSelectedCity(e.target.value)}
+            value={selectedTurf?._id || ""}
+            onChange={(e) => {
+              const t = turfs.find((t) => t._id === e.target.value);
+              setSelectedTurf(t || null);
+              setShowSlots(false);
+            }}
+            className="border px-4 py-2 rounded-md"
           >
-            <option value="">Select City</option>
-            {cities.map((city) => (
-              <option key={city} value={city}>{city}</option>
+            <option value="">Select Turf</option>
+            {turfs.map((t) => (
+              <option key={t._id} value={t._id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={selectedSport}
+            onChange={(e) => setSelectedSport(e.target.value)}
+            className="border px-4 py-2 rounded-md"
+          >
+            <option value="">Select Sport</option>
+            {sports.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
             ))}
           </select>
 
           <input
             type="date"
-            min={new Date().toISOString().split("T")[0]} // ✅ Prevent past dates
-            className="border px-4 py-2 rounded-md w-full md:w-auto"
+            min={new Date().toISOString().split("T")[0]}
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
+            className="border px-4 py-2 rounded-md"
           />
-
-          <select
-            className="border px-4 py-2 rounded-md w-full md:w-auto"
-            value={selectedSlot}
-            onChange={(e) => setSelectedSlot(e.target.value)}
-          >
-            <option value="">Select Time</option>
-            {timeslots.map((slot) => (
-              <option key={slot} value={slot}>{slot}</option>
-            ))}
-          </select>
-
-          <select
-            className="border px-4 py-2 rounded-md w-full md:w-auto"
-            value={selectedRate}
-            onChange={(e) => setSelectedRate(e.target.value)}
-          >
-            <option value="">Select Rate</option>
-            {rates.map((rate) => (
-              <option key={rate} value={rate}>{rate}</option>
-            ))}
-          </select>
 
           <button
             onClick={handleSearch}
-            className="bg-red-600 text-white px-6 py-4 rounded-lg w-full md:w-auto flex items-center justify-center gap-2"
+            className="bg-red-600 text-white px-6 py-3 rounded-lg flex items-center gap-2"
           >
-            <Image src={searchIcon} alt="Search" width={24} height={24} />
-            <span className="hidden md:inline text-lg font-medium">Search</span>
+            <Image src={searchIcon} alt="Search" width={20} height={20} />
+            Search
           </button>
         </div>
 
-        {/* 📅 Search Result Table */}
-        {isBookingPage && showResult && (
-          <div className="w-full px-6 pb-10 overflow-x-auto">
-            <div className="w-full min-w-[900px]">
-              <div className="grid grid-cols-8 gap-2 mb-4">
-                <span className="font-semibold text-gray-600">TIME</span>
-                {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day) => (
-                  <span key={day} className="font-semibold text-center text-gray-600">{day}</span>
-                ))}
-              </div>
-
-              {[
-                '6AM - 7AM', '7AM - 8AM', '8AM - 9AM', '9AM - 10AM', '10AM - 11AM',
-                '11AM - 12PM', '12PM - 1PM', '1PM - 2PM', '2PM - 3PM', '3PM - 4PM',
-                '4PM - 5PM', '5PM - 6PM', '6PM - 7PM', '7PM - 8PM', '8PM - 9PM',
-                '9PM - 10PM', '10PM - 11PM', '11PM - 12AM'
-              ].map((slot) => (
-                <div key={slot} className="grid grid-cols-8 gap-2 items-center py-1">
-                  <span className="text-sm font-medium text-gray-700">{slot}</span>
-                  {[...Array(7)].map((_, idx) => (
-                    <div
-                      key={idx}
-                      className={`w-full h-8 rounded-md flex items-center justify-center text-sm 
-                        ${slot === '2PM - 3PM' && idx === 0 ? 'bg-blue-300 text-white' :
-                          slot === '4PM - 5PM' && idx === 0 ? 'bg-blue-300 text-white' :
-                          'bg-gray-200 text-gray-700'}`}
-                    >
-                      {slot === '2PM - 3PM' && idx === 0 ? '600' :
-                        slot === '4PM - 5PM' && idx === 0 ? '600' : ''}
-                    </div>
-                  ))}
-                </div>
+        {/* Step 2: Slot Display */}
+        {showSlots && (
+          <div className="mt-6 space-y-4">
+            <h2 className="text-xl font-semibold">
+              Available Slots for ₹{selectedTurf?.ratePerHour}
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              {availableSlots.map((slot) => (
+                <button
+                  key={slot}
+                  onClick={() => setSelectedSlot(slot)}
+                  className={`px-4 py-2 rounded-md border ${
+                    selectedSlot === slot
+                      ? "bg-red-600 text-white"
+                      : "bg-white hover:bg-gray-100"
+                  }`}
+                >
+                  {slot}
+                </button>
               ))}
+              {bookedSlots.map((slot) => (
+                <button
+                  key={slot}
+                  disabled
+                  className="px-4 py-2 rounded-md bg-gray-300 text-gray-600 cursor-not-allowed"
+                >
+                  {slot} (Booked)
+                </button>
+              ))}
+            </div>
 
-              {/* 🧾 Total and Buttons */}
-              <div className="flex justify-between items-center mt-6 flex-wrap gap-4">
-                <div className="flex items-center gap-2 text-lg font-semibold">
-                  <span>Total Amount -</span>
-                  <input
-                    readOnly
-                    value="1200/-"
-                    className="border border-gray-400 rounded-md px-4 py-1 w-32 text-center"
-                  />
-                </div>
-
+            {selectedSlot && (
+              <div className="flex justify-between items-center mt-4">
+                <span className="text-lg font-medium">
+                  Total: ₹{selectedTurf?.ratePerHour}
+                </span>
                 <div className="flex gap-4">
-                  <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg text-lg">
-                    BOOK
+                  <button
+                    onClick={handleBooking}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
+                  >
+                    Confirm Booking
                   </button>
                   <button
-                    onClick={() => setShowResult(false)}
-                    className="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg text-lg"
+                    onClick={() => setShowSlots(false)}
+                    className="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg"
                   >
-                    CANCEL
+                    Cancel
                   </button>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>

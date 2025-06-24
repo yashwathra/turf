@@ -8,7 +8,7 @@ import Link from "next/link";
 interface Turf {
   _id: string;
   name: string;
-  location: string;
+  city: string; // ✅ changed from location
   imageUrl?: string;
   description?: string;
   sports?: string[];
@@ -22,7 +22,7 @@ export default function AdminAllTurfsPage() {
     const fetchAllTurfs = async () => {
       try {
         setLoading(true);
-        const res = await fetch("/api/turf/all", {
+        const res = await fetch("/api/turf/owner", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
@@ -51,7 +51,7 @@ export default function AdminAllTurfsPage() {
             <Card
               key={turf._id}
               title={turf.name}
-              subtitle={turf.location}
+              subtitle={turf.city}
               imageUrl={turf.imageUrl}
               description={turf.description}
               sports={turf.sports}

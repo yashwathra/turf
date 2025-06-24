@@ -10,7 +10,7 @@ export default function EditTurfPage() {
 
   const [form, setForm] = useState({
     name: "",
-    location: "",
+    city: "", // ✅ Changed from location
     imageUrl: "",
     description: "",
     sports: [] as string[],
@@ -75,9 +75,9 @@ export default function EditTurfPage() {
       alert("✅ Turf updated successfully!");
       router.push("/dashboard/owner");
     } catch (err) {
-  console.error("❌ Error updating turf:", err);
-  alert("❌ Error updating turf");
-}
+      console.error("❌ Error updating turf:", err);
+      alert("❌ Error updating turf");
+    }
   };
 
   return (
@@ -85,7 +85,7 @@ export default function EditTurfPage() {
       <h1 className="text-2xl font-bold mb-4">Edit Turf</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input name="name" value={form.name} onChange={handleChange} placeholder="Turf name" className="w-full p-2 border rounded" />
-        <input name="location" value={form.location} onChange={handleChange} placeholder="Location" className="w-full p-2 border rounded" />
+        <input name="city" value={form.city} onChange={handleChange} placeholder="City" className="w-full p-2 border rounded" /> {/* ✅ updated */}
         <input name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="Image URL" className="w-full p-2 border rounded" />
         <textarea name="description" value={form.description} onChange={handleChange} placeholder="Description" className="w-full p-2 border rounded" />
         <input name="sports" value={form.sports.join(", ")} onChange={(e) => handleArrayChange("sports", e.target.value)} placeholder="Sports (e.g., Football, Cricket)" className="w-full p-2 border rounded" />

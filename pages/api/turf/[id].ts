@@ -1,3 +1,4 @@
+// File: pages/api/turf/[id].ts
 import { NextApiRequest, NextApiResponse } from "next";
 import { connectDB } from "@/lib/db";
 import Turf from "@/models/Turf";
@@ -37,10 +38,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ error: "Forbidden: You are not the owner" });
     }
 
-    const { name, location, imageUrl, description, sports, amenities, slotDuration } = req.body;
+    const { name, city, imageUrl, description, sports, amenities, slotDuration } = req.body;
 
     turf.name = name;
-    turf.location = location;
+    turf.city = city; // ✅ changed from location to city
     turf.imageUrl = imageUrl;
     turf.description = description;
     turf.sports = sports;

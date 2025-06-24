@@ -7,43 +7,53 @@ export default function CreateTurfPage() {
   const router = useRouter();
 
   const [form, setForm] = useState({
-    name: "",
-    location: "",
-    sports: "",
-    amenities: "",
-    slotDuration: 60,
-    imageUrl: "",
-    description: "",
-  });
+  name: "",
+  city: "", // ✅ changed from location
+  sports: "",
+  amenities: "",
+  slotDuration: 60,
+  imageUrl: "",
+  description: "",
+});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // Convert comma strings into arrays
-    const payload = {
-      ...form,
-      sports: form.sports.split(",").map(s => s.trim()),
-      amenities: form.amenities.split(",").map(a => a.trim()),
-    };
+  const token = localStorage.getItem("token"); // ✅ Get JWT token from localStorage
+  if (!token) {
+    alert("❌ You're not logged in.");
+    return;
+  }
 
-    const res = await fetch("/api/turf/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      alert("✅ Turf created!");
-      router.push("/dashboard/owner");
-    } else {
-      alert("❌ Error: " + data.error);
-    }
+  // Convert sports and amenities into arrays
+  const payload = {
+    ...form,
+    sports: form.sports.split(",").map(s => s.trim()),
+    amenities: form.amenities.split(",").map(a => a.trim()),
   };
+
+  const res = await fetch("/api/turf/create", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Include token in header
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (res.ok) {
+    alert("✅ Turf created!");
+    router.push("/dashboard/owner");
+  } else {
+    alert("❌ Error: " + data.error);
+  }
+};
+
 
   return (
     <div className="max-w-xl mx-auto p-6">
@@ -58,13 +68,14 @@ export default function CreateTurfPage() {
           required
         />
         <input
-          name="location"
-          placeholder="Location"
-          value={form.location}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
+  name="city"
+  placeholder="City"
+  value={form.city}
+  onChange={handleChange}
+  className="w-full p-2 border rounded"
+  required
+/>
+
         <input
           name="sports"
           placeholder="Sports (e.g. football, cricket)"

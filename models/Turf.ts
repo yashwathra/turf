@@ -3,10 +3,17 @@ import mongoose from "mongoose";
 const TurfSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    location: { type: String, required: true },
-    sports: [String], 
+    city: { type: String, required: true }, // 🆕 Used in filters
+    sports: [String],
     amenities: [String],
-    slotDuration: Number,
+    slotDuration: {
+      type: Number,
+      default: 60, // in minutes
+    },
+    ratePerHour: {
+      type: Number,
+      default: 800,
+    },
     imageUrl: {
       type: String,
       default: "/turf-image.jpg",

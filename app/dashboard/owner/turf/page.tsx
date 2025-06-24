@@ -9,7 +9,7 @@ import Link from "next/link";
 interface Turf {
   _id: string;
   name: string;
-  location: string;
+  city: string; 
   imageUrl?: string;
   description?: string;
   sports?: string[];
@@ -58,7 +58,7 @@ export default function MyTurfsPage() {
             <Card
               key={turf._id}
               title={turf.name}
-              subtitle={turf.location}
+              subtitle={turf.city} // ✅ changed from turf.location
               imageUrl={turf.imageUrl}
               description={turf.description}
               sports={turf.sports}

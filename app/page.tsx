@@ -53,6 +53,7 @@ export default function HomePage() {
       />
 
       {/* SEARCH BOX */}
+      
       <Suspense fallback={<div className="text-center py-8">Loading Search Box...</div>}>
         <SearchBox />
       </Suspense>
