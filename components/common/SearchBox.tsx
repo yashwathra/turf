@@ -113,7 +113,8 @@ export default function SearchBox() {
   };
 
   return ( 
-    <section className="absolute top-[65%] left-1/2 transform -translate-x-1/2 z-20 w-full px-2 sm:px-4">
+    <section className="relative sm:absolute sm:top-[65%] sm:left-1/2 sm:transform sm:-translate-x-1/2 z-20 w-full px-2 sm:px-4">
+
   <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 w-full max-w-4xl mx-auto">
     {/* 🔍 Search Filters */}
     <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-stretch justify-center mb-4">

@@ -42,8 +42,8 @@ export default function HeroBanner({
         </div>
 
         {/* 🔴 Red Circles - Hide or Resize on Small Screens */}
-        <div className="hidden sm:block w-32 sm:w-40 h-32 sm:h-40 bg-red-600 rounded-full absolute top-[90%] left-[25%]" />
-        <div className="hidden sm:block w-60 sm:w-80 h-60 sm:h-80 bg-red-600 rounded-full absolute top-[65%] left-10" />
+        <div className="hidden sm:block w-32 sm:w-40 h-32 sm:h-40 bg-red-600 rounded-full absolute top-[90%] left-[27%]" />
+        <div className="hidden sm:block w-60 sm:w-80 h-60 sm:h-80 bg-red-600 rounded-full absolute top-[65%] left-[7%]" />
       </div>
     </section>
   );

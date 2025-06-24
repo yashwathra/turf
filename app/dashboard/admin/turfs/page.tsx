@@ -22,7 +22,7 @@ export default function AdminAllTurfsPage() {
     const fetchAllTurfs = async () => {
       try {
         setLoading(true);
-        const res = await fetch("/api/turf/owner", {
+        const res = await fetch("/api/turf/all", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },

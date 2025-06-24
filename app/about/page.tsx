@@ -3,7 +3,10 @@
 
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
+import Link from "next/link";
 import Button from "@/components/common/Button";
+import ContactFormModal from "@/components/common/ContactFormModal";
+
 import Image from "next/image";
 
 export default function AboutPage() {
@@ -22,7 +25,7 @@ export default function AboutPage() {
             Discover how we are changing the game. Play, book, and enjoy sports like never before — anywhere, anytime.
           </p>
           <div className="mt-6">
-            <Button>GET STARTED</Button>
+            <Button><Link href="/">GET STARTED</Link></Button>
           </div>
         </div>
       </section>
@@ -66,10 +69,12 @@ export default function AboutPage() {
 
       {/* ===== CONTACT SECTION ===== */}
       <section className="py-20 px-6 max-w-4xl mx-auto text-center">
-        <h3 className="text-2xl font-bold text-red-600 mb-6">Have Questions?</h3>
-        <p className="text-gray-700 mb-6">Wed love to hear from you! Reach out via email or follow us on social media.</p>
-        <Button>CONTACT US</Button>
-      </section>
+  <h3 className="text-2xl font-bold text-red-600 mb-6">Have Questions?</h3>
+  <p className="text-gray-700 mb-6">
+    Wed love to hear from you! Reach out by filling the quick form below.
+  </p>
+  <ContactFormModal />
+</section>
 
       <Footer />
     </>
