@@ -112,7 +112,7 @@ export default function SearchBox() {
     }
   };
 
-  return (
+  return ( 
     <section className="absolute top-[65%] left-1/2 transform -translate-x-1/2 z-20 w-full px-2 sm:px-4">
   <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 w-full max-w-4xl mx-auto">
     {/* 🔍 Search Filters */}
@@ -126,7 +126,7 @@ export default function SearchBox() {
         }}
         className="border px-4 py-2 rounded-md w-full sm:w-auto"
       >
-        <option value="">Select City</option>
+        <option value="">Select  City</option>
         {cities.map((c) => (
           <option key={c} value={c}>
             {c}
