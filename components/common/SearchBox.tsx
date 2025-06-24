@@ -29,6 +29,7 @@ export default function SearchBox() {
   const [selectedSlot, setSelectedSlot] = useState("");
 
   const [showSlots, setShowSlots] = useState(false);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   useEffect(() => {
     fetch("/api/turf/cities")
@@ -61,14 +62,16 @@ export default function SearchBox() {
   const handleSearch = async () => {
     if (!selectedTurf || !selectedDate) return alert("Please fill all fields");
 
+    setLoadingSlots(true);
+    setShowSlots(false);
     const res = await fetch(
       `/api/slots?turfId=${selectedTurf._id}&date=${selectedDate}`
     );
     const data = await res.json();
-
     setAvailableSlots(data.availableSlots || []);
     setBookedSlots(data.bookedSlots || []);
     setShowSlots(true);
+    setLoadingSlots(false);
   };
 
   const handleBooking = async () => {
@@ -110,129 +113,138 @@ export default function SearchBox() {
   };
 
   return (
-    <section className="absolute bottom-[20%] left-1/2 transform -translate-x-1/2 z-20 w-full px-4">
-      <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-4xl mx-auto">
-        {/* Step 1: Filters */}
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-4">
-          <select
-            value={selectedCity}
-            onChange={(e) => {
-              setSelectedCity(e.target.value);
-              setSelectedTurf(null);
-              setShowSlots(false);
-            }}
-            className="border px-4 py-2 rounded-md"
-          >
-            <option value="">Select City</option>
-            {cities.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+    <section className="absolute top-[65%] left-1/2 transform -translate-x-1/2 z-20 w-full px-2 sm:px-4">
+  <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 w-full max-w-4xl mx-auto">
+    {/* 🔍 Search Filters */}
+    <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-stretch justify-center mb-4">
+      <select
+        value={selectedCity}
+        onChange={(e) => {
+          setSelectedCity(e.target.value);
+          setSelectedTurf(null);
+          setShowSlots(false);
+        }}
+        className="border px-4 py-2 rounded-md w-full sm:w-auto"
+      >
+        <option value="">Select City</option>
+        {cities.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </select>
 
-          <select
-            value={selectedTurf?._id || ""}
-            onChange={(e) => {
-              const t = turfs.find((t) => t._id === e.target.value);
-              setSelectedTurf(t || null);
-              setShowSlots(false);
-            }}
-            className="border px-4 py-2 rounded-md"
-          >
-            <option value="">Select Turf</option>
-            {turfs.map((t) => (
-              <option key={t._id} value={t._id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
+      <select
+        value={selectedTurf?._id || ""}
+        onChange={(e) => {
+          const t = turfs.find((t) => t._id === e.target.value);
+          setSelectedTurf(t || null);
+          setShowSlots(false);
+        }}
+        className="border px-4 py-2 rounded-md w-full sm:w-auto"
+      >
+        <option value="">Select Turf</option>
+        {turfs.map((t) => (
+          <option key={t._id} value={t._id}>
+            {t.name}
+          </option>
+        ))}
+      </select>
 
-          <select
-            value={selectedSport}
-            onChange={(e) => setSelectedSport(e.target.value)}
-            className="border px-4 py-2 rounded-md"
-          >
-            <option value="">Select Sport</option>
-            {sports.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+      <select
+        value={selectedSport}
+        onChange={(e) => setSelectedSport(e.target.value)}
+        className="border px-4 py-2 rounded-md w-full sm:w-auto"
+      >
+        <option value="">Select Sport</option>
+        {sports.map((s) => (
+          <option key={s} value={s}>
+            {s}
+          </option>
+        ))}
+      </select>
 
-          <input
-            type="date"
-            min={new Date().toISOString().split("T")[0]}
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="border px-4 py-2 rounded-md"
-          />
+      <input
+        type="date"
+        min={new Date().toISOString().split("T")[0]}
+        value={selectedDate}
+        onChange={(e) => setSelectedDate(e.target.value)}
+        className="border px-4 py-2 rounded-md w-full sm:w-auto"
+      />
 
-          <button
-            onClick={handleSearch}
-            className="bg-red-600 text-white px-6 py-3 rounded-lg flex items-center gap-2"
-          >
-            <Image src={searchIcon} alt="Search" width={20} height={20} />
-            Search
-          </button>
+      <button
+        onClick={handleSearch}
+        className="bg-red-600 text-white px-6 py-3 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto"
+      >
+        <Image src={searchIcon} alt="Search" width={20} height={20} />
+        Search
+      </button>
+    </div>
+
+    {/* ⏳ Slot Result */}
+    <div className="mt-4 transition-all duration-300">
+      {loadingSlots && (
+        <div className="text-center text-gray-600 py-4 animate-pulse">
+          Fetching available slots...
         </div>
+      )}
 
-        {/* Step 2: Slot Display */}
-        {showSlots && (
-          <div className="mt-6 space-y-4">
-            <h2 className="text-xl font-semibold">
-              Available Slots for ₹{selectedTurf?.ratePerHour}
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              {availableSlots.map((slot) => (
-                <button
-                  key={slot}
-                  onClick={() => setSelectedSlot(slot)}
-                  className={`px-4 py-2 rounded-md border ${
-                    selectedSlot === slot
-                      ? "bg-red-600 text-white"
-                      : "bg-white hover:bg-gray-100"
-                  }`}
-                >
-                  {slot}
-                </button>
-              ))}
-              {bookedSlots.map((slot) => (
-                <button
-                  key={slot}
-                  disabled
-                  className="px-4 py-2 rounded-md bg-gray-300 text-gray-600 cursor-not-allowed"
-                >
-                  {slot} (Booked)
-                </button>
-              ))}
-            </div>
-
-            {selectedSlot && (
-              <div className="flex justify-between items-center mt-4">
-                <span className="text-lg font-medium">
-                  Total: ₹{selectedTurf?.ratePerHour}
-                </span>
-                <div className="flex gap-4">
-                  <button
-                    onClick={handleBooking}
-                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
-                  >
-                    Confirm Booking
-                  </button>
-                  <button
-                    onClick={() => setShowSlots(false)}
-                    className="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
+      {showSlots && !loadingSlots && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-center sm:text-left">
+            Available Slots for ₹{selectedTurf?.ratePerHour}
+          </h2>
+          <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
+            {availableSlots.map((slot) => (
+              <button
+                key={slot}
+                onClick={() => setSelectedSlot(slot)}
+                className={`px-4 py-2 rounded-md border ${
+                  selectedSlot === slot
+                    ? "bg-red-600 text-white"
+                    : "bg-white hover:bg-gray-100"
+                }`}
+              >
+                {slot}
+              </button>
+            ))}
+            {bookedSlots.map((slot) => (
+              <button
+                key={slot}
+                disabled
+                className="px-4 py-2 rounded-md bg-gray-300 text-gray-600 cursor-not-allowed"
+              >
+                {slot} (Booked)
+              </button>
+            ))}
           </div>
-        )}
-      </div>
-    </section>
+
+          {selectedSlot && (
+            <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-3">
+              <span className="text-lg font-medium">
+                Total: ₹{selectedTurf?.ratePerHour}
+              </span>
+              <div className="flex gap-4 flex-col sm:flex-row w-full sm:w-auto">
+                <button
+                  onClick={handleBooking}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg w-full sm:w-auto"
+                >
+                  Confirm Booking
+                </button>
+                <button
+                  onClick={() => setShowSlots(false)}
+                  className="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg w-full sm:w-auto"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
   );
 }
