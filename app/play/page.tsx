@@ -5,6 +5,7 @@ import Navbar from "@/components/common/Navbar";
 import Card from "@/components/common/Card";
 import CategoryCard from "@/components/common/CategoryCard";
 import Button from "@/components/common/Button";
+import CardSkeleton from "@/components/common/CardSkeleton";
 import AdSlider from "@/components/common/AdSlider";
 import HeroBanner from "@/components/common/HeroBanner";
 import Footer from "@/components/common/Footer";
@@ -55,25 +56,28 @@ export default function PlayPage() {
       {/* Floating cards section */}
       <section className="relative z-10 -mt-24 px-6 max-w-6xl mx-auto">
         {isLoading ? (
-          <div className="text-center py-20 text-gray-500 text-lg font-medium">
-            ⏳ Loading turfs...
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {turfs.map((turf) => (
-              <Card
-                key={turf._id}
-                title={turf.name}
-                subtitle={turf.location}
-                imageUrl={turf.imageUrl}
-                description={turf.description}
-                sports={turf.sports}
-              >
-                <Button>PLAY NOW</Button>
-              </Card>
-            ))}
-          </div>
-        )}
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+    {[1, 2, 3, 4, 5, 6].map((_, i) => (
+      <CardSkeleton key={i} />
+    ))}
+  </div>
+) : (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+    {turfs.map((turf) => (
+      <Card
+        key={turf._id}
+        title={turf.name}
+        subtitle={turf.location}
+        imageUrl={turf.imageUrl}
+        description={turf.description}
+        sports={turf.sports}
+      >
+        <Button>PLAY NOW</Button>
+      </Card>
+    ))}
+  </div>
+)}
+
       </section>
 
       {/* Category section */}

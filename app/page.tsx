@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Navbar from "@/components/common/Navbar";
 import { Suspense } from "react";
 import Card from "@/components/common/Card";
@@ -14,14 +15,15 @@ import HeroBanner from "@/components/common/HeroBanner";
 interface Turf {
   _id: string;
   name: string;
-  location: string;
+  city: string;
   imageUrl: string;
   description?: string;
   sports?: string[];
 }
 
 export default function HomePage() {
-  const [turfs, setTurfs] = useState<Turf[]>([]);
+  const [allTurfs, setAllTurfs] = useState<Turf[]>([]);
+  const [featuredTurfs, setFeaturedTurfs] = useState<Turf[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
   const [filteredTurfs, setFilteredTurfs] = useState<Turf[]>([]);
@@ -32,8 +34,8 @@ export default function HomePage() {
         setIsLoading(true);
         const res = await fetch("/api/turf/all");
         const data = await res.json();
-        setTurfs(data.slice(0, 3)); // For featured section
-        setFilteredTurfs([]);       // Don't show all by default
+        setAllTurfs(data);
+        setFeaturedTurfs(data.slice(0, 3));
       } catch (err) {
         console.error("Failed to fetch turfs:", err);
       } finally {
@@ -48,14 +50,14 @@ export default function HomePage() {
       setFilteredTurfs([]);
     } else {
       setFilteredTurfs(
-        turfs.filter((t) =>
+        allTurfs.filter((t) =>
           t.sports?.some(
             (s) => s.toLowerCase() === selectedSport.toLowerCase()
           )
         )
       );
     }
-  }, [selectedSport, turfs]);
+  }, [selectedSport, allTurfs]);
 
   return (
     <>
@@ -72,49 +74,80 @@ export default function HomePage() {
       </Suspense>
 
       {/* TURF CARDS - Featured 3 */}
-      {isLoading ? (
-        <div className="text-center py-20 text-gray-500 text-lg font-medium">
-          ⏳ Loading turfs...
-        </div>
-      ) : (
-        turfs.map((turf, index) => (
-          <section key={turf._id} className="w-full mt-28">
-    <div
-      className={`max-w-6xl mx-auto flex flex-col-reverse md:flex-row items-center justify-between gap-60 px-4 md:px-6 ${
-        index % 2 !== 0 ? "md:flex-row-reverse" : ""
-      }`}
-    >
-      {/* TEXT */}
-      <div className="w-full md:w-1/2 text-center md:text-left">
-        <h1 className="text-4xl font-extrabold text-red-600">{turf.name}</h1>
-        <p className="text-black mt-3 font-medium leading-relaxed">
-          {turf.description || "This turf is perfect for your next game."}
-        </p>
-        <div className="mt-6">
-          <Button>BOOK NOW</Button>
-        </div>
-        <div className="mt-4 text-yellow-400 text-lg">⭐⭐⭐⭐⭐</div>
-      </div>
-
-      {/* CARD */}
-      <div className="w-full md:w-1/2 relative flex justify-center">
+     {isLoading ? (
+  <>
+    {[1, 2, 3].map((_, index) => (
+      <section key={index} className="w-full mt-28">
         <div
-          className={`absolute ${
-            index % 2 === 0 ? "-top-8 -left-8" : "-top-8 -right-8"
-          } w-52 h-52 bg-red-600 rounded-[30px] z-0`}
-        ></div>
-        <div className="relative z-10 max-w-sm w-full">
-          <Card
-            title={turf.name}
-            subtitle={turf.location}
-            imageUrl={turf.imageUrl}
-            description={turf.description}
-            sports={turf.sports}
-          />
+          className={`max-w-6xl mx-auto flex flex-col-reverse md:flex-row items-center justify-between gap-60 px-4 md:px-6 ${
+            index % 2 !== 0 ? "md:flex-row-reverse" : ""
+          }`}
+        >
+          {/* Text Skeleton */}
+          <div className="w-full md:w-1/2 text-center md:text-left space-y-4 animate-pulse">
+            <div className="h-10 bg-gray-300 rounded w-3/4 mx-auto md:mx-0" />
+            <div className="h-4 bg-gray-200 rounded w-full" />
+            <div className="h-4 bg-gray-200 rounded w-5/6" />
+            <div className="h-10 w-32 bg-gray-300 rounded mx-auto md:mx-0 mt-4" />
+            <div className="h-5 w-24 bg-gray-200 rounded mx-auto md:mx-0 mt-2" />
+          </div>
+
+          {/* Card Skeleton with red shape */}
+          <div className="w-full md:w-1/2 relative flex justify-center animate-pulse">
+            <div
+              className={`absolute ${
+                index % 2 === 0 ? "-top-8 -left-8" : "-top-8 -right-8"
+              } w-52 h-52 bg-red-200 rounded-[30px] z-0`}
+            />
+            <div className="relative z-10 max-w-sm w-full h-64 bg-gray-200 rounded-xl" />
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
+    ))}
+  </>
+) : (
+  
+
+  featuredTurfs.map((turf, index) => (
+          <section key={turf._id} className="w-full mt-28">
+            <div
+              className={`max-w-6xl mx-auto flex flex-col-reverse md:flex-row items-center justify-between gap-60 px-4 md:px-6 ${
+                index % 2 !== 0 ? "md:flex-row-reverse" : ""
+              }`}
+            >
+              {/* TEXT */}
+              <div className="w-full md:w-1/2 text-center md:text-left">
+                <h1 className="text-4xl font-extrabold text-red-600">{turf.name}</h1>
+                <p className="text-black mt-3 font-medium leading-relaxed">
+                  {turf.description || "This turf is perfect for your next game."}
+                </p>
+                <div className="mt-6">
+                  <Link href={`/turf/${turf._id}`}>
+                    <Button>BOOK NOW</Button>
+                  </Link>
+                </div>
+                <div className="mt-4 text-yellow-400 text-lg">⭐⭐⭐⭐⭐</div>
+              </div>
+
+              {/* CARD */}
+              <div className="w-full md:w-1/2 relative flex justify-center">
+                <div
+                  className={`absolute ${
+                    index % 2 === 0 ? "-top-8 -left-8" : "-top-8 -right-8"
+                  } w-52 h-52 bg-red-600 rounded-[30px] z-0`}
+                ></div>
+                <div className="relative z-10 max-w-sm w-full">
+                  <Card
+                    title={turf.name}
+                    subtitle={turf.city}
+                    imageUrl={turf.imageUrl}
+                    description={turf.description}
+                    sports={turf.sports}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
         ))
       )}
 
@@ -153,7 +186,7 @@ export default function HomePage() {
                 <Card
                   key={turf._id}
                   title={turf.name}
-                  subtitle={turf.location}
+                  subtitle={turf.city}
                   imageUrl={turf.imageUrl}
                   description={turf.description}
                   sports={turf.sports}

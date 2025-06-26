@@ -1,4 +1,3 @@
-// File: pages/api/turf/[id].ts
 import { NextApiRequest, NextApiResponse } from "next";
 import { connectDB } from "@/lib/db";
 import Turf from "@/models/Turf";
@@ -9,28 +8,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   await connectDB();
 
   const id = req.query.id as string;
-
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ error: "Invalid turf ID" });
   }
 
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "Unauthorized" });
-
-  let decoded;
-  try {
-    decoded = verifyToken(token);
-  } catch {
-    return res.status(401).json({ error: "Invalid or expired token" });
-  }
-
   if (req.method === "GET") {
-    const turf = await Turf.findById(id);
-    if (!turf) return res.status(404).json({ error: "Turf not found" });
-    return res.status(200).json(turf);
+    try {
+      const turf = await Turf.findById(id);
+      if (!turf) return res.status(404).json({ error: "Turf not found" });
+      return res.status(200).json(turf); // ✅ anyone can view
+    } catch {
+      return res.status(500).json({ error: "Error fetching turf" });
+    }
   }
 
+  // 👇 From here on: Only allow PUT if user is owner
   if (req.method === "PUT") {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+    let decoded;
+    try {
+      decoded = verifyToken(token);
+    } catch {
+      return res.status(401).json({ error: "Invalid or expired token" });
+    }
+
     const turf = await Turf.findById(id);
     if (!turf) return res.status(404).json({ error: "Turf not found" });
 
@@ -41,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { name, city, imageUrl, description, sports, amenities, slotDuration } = req.body;
 
     turf.name = name;
-    turf.city = city; // ✅ changed from location to city
+    turf.city = city;
     turf.imageUrl = imageUrl;
     turf.description = description;
     turf.sports = sports;
@@ -54,4 +57,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   return res.status(405).json({ error: "Method Not Allowed" });
 }
- 

@@ -1,7 +1,8 @@
+//File : pages/api/slots.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import { connectDB } from "@/lib/db";
 import Booking from '@/models/Booking';
-import Turf from '@/models/Turf';
+import Turf from '@/models/Turf';  
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   await connectDB();
