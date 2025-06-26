@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const {
       name,
-      city, // ✅ changed from location
+      city, 
       amenities = [],
       slotDuration,
       imageUrl,
@@ -39,14 +39,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       sports,
     } = req.body;
 
-    if (!name || !city || !slotDuration || !Array.isArray(sports) || sports.length === 0) {
-      return res.status(400).json({ error: "Please provide name, city, slotDuration and at least one sport" });
+    // ✅ Define allowed sports
+    const allowedSports = ["Football", "Cricket", "Tennis", "Badminton", "Volleyball","Basketball", "Hockey", "Rugby", "Table Tennis", "Squash", "Baseball", "Golf", "Swimming", "Athletics", "Gymnastics", "Boxing", "Martial Arts", "Cycling", "Rowing", "Sailing"];
+
+    // ✅ Validate selected sports
+    const filteredSports = (sports as string[]).filter((s) =>
+      allowedSports.includes(s)
+    );
+
+    if (!name || !city || !slotDuration || filteredSports.length === 0) {
+      return res.status(400).json({
+        error: "Please provide name, city, slotDuration and at least one valid sport",
+      });
     }
 
     const turf = await Turf.create({
       name,
       city,
-      sports,
+      sports: filteredSports,
       amenities,
       slotDuration,
       imageUrl: imageUrl || "/turf-image.jpg",

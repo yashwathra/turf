@@ -76,14 +76,36 @@ export default function CreateTurfPage() {
   required
 />
 
-        <input
-          name="sports"
-          placeholder="Sports (e.g. football, cricket)"
-          value={form.sports}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
+        <label className="block">
+  <span className="text-sm font-medium mb-2 block">Select Sports</span>
+  <div className="grid grid-cols-2 gap-2">
+    {["Football", "Cricket", "Tennis", "Badminton", "Volleyball","Basketball", "Hockey", "Rugby", "Table Tennis", "Squash", "Baseball", "Golf", "Swimming", "Athletics", "Gymnastics", "Boxing", "Martial Arts", "Cycling", "Rowing", "Sailing"].map((sport) => {
+      const isChecked = form.sports.split(",").includes(sport);
+      return (
+        <label key={sport} className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            value={sport}
+            checked={isChecked}
+            onChange={(e) => {
+              const selected = form.sports.split(",");
+              if (e.target.checked) {
+                selected.push(sport);
+              } else {
+                const index = selected.indexOf(sport);
+                if (index > -1) selected.splice(index, 1);
+              }
+              setForm({ ...form, sports: selected.join(",") });
+            }}
+          />
+          <span className="text-sm">{sport}</span>
+        </label>
+      );
+    })}
+  </div>
+</label>
+
+
         <input
           name="amenities"
           placeholder="Amenities (e.g. parking, lights)"

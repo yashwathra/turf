@@ -88,7 +88,29 @@ export default function EditTurfPage() {
         <input name="city" value={form.city} onChange={handleChange} placeholder="City" className="w-full p-2 border rounded" /> {/* ✅ updated */}
         <input name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="Image URL" className="w-full p-2 border rounded" />
         <textarea name="description" value={form.description} onChange={handleChange} placeholder="Description" className="w-full p-2 border rounded" />
-        <input name="sports" value={form.sports.join(", ")} onChange={(e) => handleArrayChange("sports", e.target.value)} placeholder="Sports (e.g., Football, Cricket)" className="w-full p-2 border rounded" />
+<label className="block">
+  <span className="text-sm font-medium mb-2 block">Select Sports</span>
+  <div className="grid grid-cols-2 gap-2">
+    {["Football", "Cricket", "Tennis", "Badminton", "Volleyball","Basketball", "Hockey", "Rugby", "Table Tennis", "Squash", "Baseball", "Golf", "Swimming", "Athletics", "Gymnastics", "Boxing", "Martial Arts", "Cycling", "Rowing", "Sailing"].map((sport) => (
+      <label key={sport} className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          value={sport}
+          checked={form.sports.includes(sport)}
+          onChange={(e) => {
+            const updatedSports = e.target.checked
+              ? [...form.sports, sport]
+              : form.sports.filter((s) => s !== sport);
+            setForm((prev) => ({ ...prev, sports: updatedSports }));
+          }}
+        />
+        <span className="text-sm">{sport}</span>
+      </label>
+    ))}
+  </div>
+</label>
+
+
         <input name="amenities" value={form.amenities.join(", ")} onChange={(e) => handleArrayChange("amenities", e.target.value)} placeholder="Amenities (e.g., Lights, Security)" className="w-full p-2 border rounded" />
         <select name="slotDuration" value={form.slotDuration} onChange={handleChange} className="w-full p-2 border rounded">
           <option value={30}>30 minutes</option>

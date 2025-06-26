@@ -1,6 +1,10 @@
+"use client";
+
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface CardProps {
+  id?: string; 
   title: string;
   subtitle?: string;
   description?: string;
@@ -11,6 +15,7 @@ interface CardProps {
 }
 
 export default function Card({
+  id,  
   title,
   subtitle,
   description,
@@ -19,8 +24,20 @@ export default function Card({
   children,
   showDots = true,
 }: CardProps) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (id) {
+      router.push(`/turf/${id}`);
+    }
+  };
+
   return (
-    <div className="bg-white rounded-2xl border border-gray-300 shadow-xl w-full overflow-hidden transition-transform hover:scale-105">
+    
+    <div
+      onClick={handleClick}
+      className="cursor-pointer bg-white rounded-2xl border border-gray-300 shadow-xl w-full overflow-hidden transition-transform hover:scale-105"
+    >
       {/* Image */}
       {imageUrl && (
         <div className="px-4 pt-4">
@@ -40,10 +57,9 @@ export default function Card({
         {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
         {description && <p className="text-sm text-gray-600 mt-2">{description}</p>}
 
-        {/* Children */}
         <div className="mt-4 flex justify-center">{children}</div>
 
-        {/* Sports Badges */}
+        {/* Sports Tags */}
         {sports.length > 0 && (
           <div className="flex justify-center flex-wrap gap-2 mt-4">
             {sports.map((sport, index) => (
@@ -57,7 +73,7 @@ export default function Card({
           </div>
         )}
 
-        {/* Bottom Dots */}
+        {/* Dots */}
         {showDots && (
           <div className="flex justify-center gap-2 mt-4">
             <div className="w-3 h-3 bg-red-600 rounded-sm" />

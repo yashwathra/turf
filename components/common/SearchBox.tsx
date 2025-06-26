@@ -113,74 +113,92 @@ export default function SearchBox() {
   };
 
   return ( 
-    <section className="relative sm:absolute sm:top-[65%] sm:left-1/2 sm:transform sm:-translate-x-1/2 z-20 w-full px-2 sm:px-4">
+    <section className="absolute top-[65%] left-1/2 transform -translate-x-1/2 z-20 w-full max-w-screen-xl px-2 sm:px-4">
 
-  <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 w-full max-w-4xl mx-auto">
+
+  <div className="bg-white shadow-xl rounded-2xl p-4 md:p-6 w-full max-w-3xl sm:max-w-4xl lg:max-w-5xl mx-auto">
+
     {/* 🔍 Search Filters */}
-    <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-stretch justify-center mb-4">
-      <select
-        value={selectedCity}
-        onChange={(e) => {
-          setSelectedCity(e.target.value);
-          setSelectedTurf(null);
-          setShowSlots(false);
-        }}
-        className="border px-4 py-2 rounded-md w-full sm:w-auto"
-      >
-        <option value="">Select  City</option>
-        {cities.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </select>
+    <div className="flex flex-wrap gap-4 justify-center sm:justify-start mb-4">
+  {/* City Select */}
+  <div className="flex-1 min-w-[150px]">
+    <select
+      value={selectedCity}
+      onChange={(e) => {
+        setSelectedCity(e.target.value);
+        setSelectedTurf(null);
+        setShowSlots(false);
+      }}
+      className="w-full border px-4 py-2 rounded-md text-sm"
+    >
+      <option value="">Select City</option>
+      {cities.map((c) => (
+        <option key={c} value={c}>
+          {c}
+        </option>
+      ))}
+    </select>
+  </div>
 
-      <select
-        value={selectedTurf?._id || ""}
-        onChange={(e) => {
-          const t = turfs.find((t) => t._id === e.target.value);
-          setSelectedTurf(t || null);
-          setShowSlots(false);
-        }}
-        className="border px-4 py-2 rounded-md w-full sm:w-auto"
-      >
-        <option value="">Select Turf</option>
-        {turfs.map((t) => (
-          <option key={t._id} value={t._id}>
-            {t.name}
-          </option>
-        ))}
-      </select>
+  {/* Turf Select */}
+  <div className="flex-1 min-w-[150px]">
+    <select
+      value={selectedTurf?._id || ""}
+      onChange={(e) => {
+        const t = turfs.find((t) => t._id === e.target.value);
+        setSelectedTurf(t || null);
+        setShowSlots(false);
+      }}
+      className="w-full border px-4 py-2 rounded-md text-sm"
+    >
+      <option value="">Select Turf</option>
+      {turfs.map((t) => (
+        <option key={t._id} value={t._id}>
+          {t.name}
+        </option>
+      ))}
+    </select>
+  </div>
 
-      <select
-        value={selectedSport}
-        onChange={(e) => setSelectedSport(e.target.value)}
-        className="border px-4 py-2 rounded-md w-full sm:w-auto"
-      >
-        <option value="">Select Sport</option>
-        {sports.map((s) => (
-          <option key={s} value={s}>
-            {s}
-          </option>
-        ))}
-      </select>
+  {/* Sport Select */}
+  <div className="flex-1 min-w-[150px]">
+    <select
+      value={selectedSport}
+      onChange={(e) => setSelectedSport(e.target.value)}
+      className="w-full border px-4 py-2 rounded-md text-sm"
+    >
+      <option value="">Select Sport</option>
+      {sports.map((s) => (
+        <option key={s} value={s}>
+          {s}
+        </option>
+      ))}
+    </select>
+  </div>
 
-      <input
-        type="date"
-        min={new Date().toISOString().split("T")[0]}
-        value={selectedDate}
-        onChange={(e) => setSelectedDate(e.target.value)}
-        className="border px-4 py-2 rounded-md w-full sm:w-auto"
-      />
+  {/* Date Picker */}
+  <div className="flex-1 min-w-[150px]">
+    <input
+      type="date"
+      min={new Date().toISOString().split("T")[0]}
+      value={selectedDate}
+      onChange={(e) => setSelectedDate(e.target.value)}
+      className="w-full border px-4 py-2 rounded-md text-sm"
+    />
+  </div>
 
-      <button
-        onClick={handleSearch}
-        className="bg-red-600 text-white px-6 py-3 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto"
-      >
-        <Image src={searchIcon} alt="Search" width={20} height={20} />
-        Search
-      </button>
-    </div>
+  {/* Search Button */}
+  <div className="flex-1 min-w-[150px]">
+    <button
+  onClick={handleSearch}
+  className="w-full bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white font-semibold px-6 py-2.5 rounded-md flex items-center justify-center gap-2 text-sm shadow-md hover:shadow-lg transition-all duration-300"
+>
+  <Image src={searchIcon} alt="Search" width={16} height={16} />
+  Search
+</button>
+  </div>
+</div>
+
 
     {/* ⏳ Slot Result */}
     <div className="mt-4 transition-all duration-300">
