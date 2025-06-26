@@ -70,16 +70,6 @@ export default function Navbar() {
           <Link href="/play" className={navLinkClass("/play")}>PLAY</Link>
           <Link href="/book" className={navLinkClass("/book")}>BOOK</Link>
           <Link href="/about" className={navLinkClass("/about")}>ABOUT</Link>
-
-          {/* ADMIN Link */}
-          {user?.role === "admin" && (
-            <Link href="/dashboard/admin" className={navLinkClass("/dashboard/admin")}>ADMIN</Link>
-          )}
-
-          {/* USER Link */}
-          {user?.role === "user" && (
-            <Link href="/dashboard/user" className={navLinkClass("/dashboard/user")}>USER</Link>
-          )}
         </div>
       </div>
 
@@ -118,19 +108,6 @@ export default function Navbar() {
           <Link href="/play" onClick={() => setMobileOpen(false)} className={navLinkClass("/play")}>PLAY</Link>
           <Link href="/book" onClick={() => setMobileOpen(false)} className={navLinkClass("/book")}>BOOK</Link>
           <Link href="/about" onClick={() => setMobileOpen(false)} className={navLinkClass("/about")}>ABOUT</Link>
-
-          {user?.role === "admin" && (
-            <Link href="/dashboard/admin" onClick={() => setMobileOpen(false)} className={navLinkClass("/dashboard/admin")}>
-              ADMIN
-            </Link>
-          )}
-
-          {user?.role === "user" && (
-            <Link href="/dashboard/user" onClick={() => setMobileOpen(false)} className={navLinkClass("/dashboard/user")}>
-              USER
-            </Link>
-          )}
-
           {user ? (
             <>
               <span className="text-center font-bold">👋 {user.name || user.email}</span>
