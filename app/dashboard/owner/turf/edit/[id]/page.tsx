@@ -11,7 +11,7 @@ export default function EditTurfPage() {
 
   const [form, setForm] = useState({
     name: "",
-    city: "", // ✅ Changed from location
+    city: "",
     imageUrl: "",
     description: "",
     sports: [] as string[],
@@ -73,7 +73,7 @@ export default function EditTurfPage() {
         return;
       }
 
-      alert("✅ Turf updated successfully!");
+      toast.success("✅ Turf updated successfully!");
       router.push("/dashboard/owner");
     } catch (err) {
       console.error("❌ Error updating turf:", err);
@@ -82,43 +82,117 @@ export default function EditTurfPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white rounded shadow mt-10">
-      <h1 className="text-2xl font-bold mb-4">Edit Turf</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input name="name" value={form.name} onChange={handleChange} placeholder="Turf name" className="w-full p-2 border rounded" />
-        <input name="city" value={form.city} onChange={handleChange} placeholder="City" className="w-full p-2 border rounded" /> {/* ✅ updated */}
-        <input name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="Image URL" className="w-full p-2 border rounded" />
-        <textarea name="description" value={form.description} onChange={handleChange} placeholder="Description" className="w-full p-2 border rounded" />
-<label className="block">
-  <span className="text-sm font-medium mb-2 block">Select Sports</span>
-  <div className="grid grid-cols-2 gap-2">
-    {["Football", "Cricket", "Tennis", "Badminton", "Volleyball","Basketball", "Hockey", "Rugby", "Table Tennis", "Squash", "Baseball", "Golf", "Swimming", "Athletics", "Gymnastics", "Boxing", "Martial Arts", "Cycling", "Rowing", "Sailing"].map((sport) => (
-      <label key={sport} className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          value={sport}
-          checked={form.sports.includes(sport)}
-          onChange={(e) => {
-            const updatedSports = e.target.checked
-              ? [...form.sports, sport]
-              : form.sports.filter((s) => s !== sport);
-            setForm((prev) => ({ ...prev, sports: updatedSports }));
-          }}
-        />
-        <span className="text-sm">{sport}</span>
-      </label>
-    ))}
-  </div>
-</label>
+    <div className="max-w-5xl mx-auto mt-10 px-6 py-8 bg-white/40 backdrop-blur-md rounded-3xl shadow-2xl">
+  <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">✏️ Edit Turf</h1>
 
+  <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {/* Left Column */}
+    <div className="space-y-4">
+      <input
+        name="name"
+        placeholder="Turf Name"
+        value={form.name}
+        onChange={handleChange}
+        className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-400"
+        required
+      />
 
-        <input name="amenities" value={form.amenities.join(", ")} onChange={(e) => handleArrayChange("amenities", e.target.value)} placeholder="Amenities (e.g., Lights, Security)" className="w-full p-2 border rounded" />
-        <select name="slotDuration" value={form.slotDuration} onChange={handleChange} className="w-full p-2 border rounded">
-          <option value={30}>30 minutes</option>
-          <option value={60}>1 hour</option>
-        </select>
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Update Turf</button>
-      </form>
+      <input
+        name="city"
+        placeholder="City"
+        value={form.city}
+        onChange={handleChange}
+        className="w-full p-3 border border-gray-300 rounded-xl"
+        required
+      />
+
+      <input
+        name="imageUrl"
+        placeholder="Image URL"
+        value={form.imageUrl}
+        onChange={handleChange}
+        className="w-full p-3 border border-gray-300 rounded-xl"
+      />
+
+      <select
+        name="slotDuration"
+        value={form.slotDuration}
+        onChange={handleChange}
+        className="w-full p-3 border border-gray-300 rounded-xl"
+      >
+        <option value={30}>30 minutes</option>
+        <option value={60}>1 hour</option>
+      </select>
+
+      <input
+        name="amenities"
+        placeholder="Amenities (e.g., Lights, Security)"
+        value={form.amenities.join(", ")}
+        onChange={(e) => handleArrayChange("amenities", e.target.value)}
+        className="w-full p-3 border border-gray-300 rounded-xl"
+      />
     </div>
+
+    {/* Right Column */}
+    <div className="space-y-4">
+      <textarea
+        name="description"
+        placeholder="Description"
+        value={form.description}
+        onChange={handleChange}
+        rows={4}
+        className="w-full p-3 border border-gray-300 rounded-xl"
+      />
+
+      {/* Sports */}
+      <div>
+        <span className="text-sm font-semibold mb-1 block">Select Sports</span>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[180px] overflow-y-auto pr-1">
+          {[
+            "Football", "Cricket", "Tennis", "Badminton", "Volleyball", "Basketball", "Hockey",
+            "Rugby", "Table Tennis", "Squash", "Baseball", "Golf", "Swimming", "Athletics",
+            "Gymnastics", "Boxing", "Martial Arts", "Cycling", "Rowing", "Sailing",
+          ].map((sport) => (
+            <label key={sport} className="flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                value={sport}
+                checked={form.sports.includes(sport)}
+                onChange={(e) => {
+                  const updated = e.target.checked
+                    ? [...form.sports, sport]
+                    : form.sports.filter((s) => s !== sport);
+                  setForm((prev) => ({ ...prev, sports: updated }));
+                }}
+              />
+              {sport}
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    {/* Full Width Button */}
+   
+<div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-4 mt-2">
+  <button
+    type="button"
+    onClick={() => router.push("/dashboard/owner")}
+    className="bg-gray-300 hover:bg-gray-400 text-gray-800 w-full sm:w-auto py-3 px-6 rounded-xl font-semibold transition"
+  >
+  Cancel
+  </button>
+
+  <button
+    type="submit"
+    className="bg-red-500 hover:bg-red-600 text-white w-full sm:w-auto py-3 px-6 rounded-xl font-semibold transition"
+  >
+  Update Turf
+  </button>
+</div>
+
+  </form>
+</div>
+
   );
 }
