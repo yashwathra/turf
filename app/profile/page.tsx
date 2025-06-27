@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface ProfileData {
   name: string;
@@ -101,13 +102,15 @@ export default function ProfilePage() {
         <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">👤 Edit Profile</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Avatar */}
+          {/* ✅ Avatar using <Image /> */}
           <div className="flex justify-center">
             <div className="relative">
-              <img
+              <Image
                 src={form.avatarUrl || "/default-avatar.png"}
                 alt="avatar"
-                className="w-24 h-24 md:w-28 md:h-28 rounded-full border object-cover shadow"
+                width={112}
+                height={112}
+                className="rounded-full object-cover border shadow"
               />
             </div>
           </div>
@@ -196,27 +199,26 @@ export default function ProfilePage() {
             />
           </div>
 
-          {/* Submit Button */}
-         <div className="flex justify-between gap-4">
-  <button
-    type="button"
-    onClick={() => router.push("/")}
-    className="w-full bg-gray-100 text-red-600 py-3 rounded-xl font-bold hover:bg-gray-200 transition"
-  >
-    ❌ Cancel
-  </button>
+          {/* Buttons */}
+          <div className="flex justify-between gap-4">
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="w-full bg-gray-100 text-red-600 py-3 rounded-xl font-bold hover:bg-gray-200 transition"
+            >
+              ❌ Cancel
+            </button>
 
-  <button
-    type="submit"
-    disabled={submitting}
-    className={`w-full bg-red-500 text-white py-3 rounded-xl font-bold hover:bg-red-600 transition ${
-      submitting ? "opacity-60 cursor-not-allowed" : ""
-    }`}
-  >
-    {submitting ? "Saving..." : "💾 Save Changes"}
-  </button>
-</div>
-
+            <button
+              type="submit"
+              disabled={submitting}
+              className={`w-full bg-red-500 text-white py-3 rounded-xl font-bold hover:bg-red-600 transition ${
+                submitting ? "opacity-60 cursor-not-allowed" : ""
+              }`}
+            >
+              {submitting ? "Saving..." : "💾 Save Changes"}
+            </button>
+          </div>
         </form>
       </div>
     </div>

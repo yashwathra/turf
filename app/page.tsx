@@ -137,6 +137,7 @@ export default function HomePage() {
                   } w-52 h-52 bg-red-600 rounded-[30px] z-0`}
                 ></div>
                 <div className="relative z-10 max-w-sm w-full">
+                  
                   <Card
                     title={turf.name}
                     subtitle={turf.city}
@@ -144,6 +145,8 @@ export default function HomePage() {
                     description={turf.description}
                     sports={turf.sports}
                   />
+                  
+
                 </div>
               </div>
             </div>

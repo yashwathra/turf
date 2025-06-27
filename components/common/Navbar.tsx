@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
@@ -78,7 +79,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Desktop Right with dropdown */}
+      {/* Desktop Right */}
       <div className="hidden md:flex items-center space-x-3 relative">
         {user ? (
           <div
@@ -94,7 +95,13 @@ export default function Navbar() {
             <div className="flex items-center gap-2 cursor-pointer">
               <div className="w-8 h-8 rounded-full overflow-hidden border border-white shadow">
                 {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  <Image
+                    src={user.avatarUrl}
+                    alt="Avatar"
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full bg-gray-300 flex items-center justify-center text-sm text-black">👤</div>
                 )}
@@ -138,45 +145,41 @@ export default function Navbar() {
           <Link href="/about" onClick={() => setMobileOpen(false)} className={navLinkClass("/about")}>ABOUT</Link>
 
           {user && (
-            <>
-              <div className="flex flex-col items-center gap-2">
-                {user.avatarUrl && (
-                  <img
-                    src={user.avatarUrl}
-                    alt="Avatar"
-                    className="w-16 h-16 rounded-full object-cover border"
-                  />
-                )}
-                <span className="font-bold">👋 {user.name || user.email}</span>
+            <div className="flex flex-col items-center gap-2">
+              {user.avatarUrl && (
+                <Image
+                  src={user.avatarUrl}
+                  alt="Avatar"
+                  width={64}
+                  height={64}
+                  className="w-16 h-16 rounded-full object-cover border"
+                />
+              )}
+              <span className="font-bold">👋 {user.name || user.email}</span>
 
-                <button
-                  className="bg-white text-black rounded-full px-4 py-2 mt-2 shadow"
-                  onClick={() => setMobileDropdownOpen(!isMobileDropdownOpen)}
-                >
-                  ☰ Menu
-                </button>
+              <button
+                className="bg-white text-black rounded-full px-4 py-2 mt-2 shadow"
+                onClick={() => setMobileDropdownOpen(!isMobileDropdownOpen)}
+              >
+                ☰ Menu
+              </button>
 
-                {isMobileDropdownOpen && (
-                  <div className="w-full text-center space-y-2 mt-3">
-                    <Link href="/profile" onClick={() => setMobileOpen(false)} className="block hover:underline">
-                      👤 Profile
-                    </Link>
-                    <Link href="/profile" onClick={() => setMobileOpen(false)} className="block hover:underline">
-                      ⚙️ Settings
-                    </Link>
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setMobileOpen(false);
-                      }}
-                      className="bg-red-500 text-white w-full py-2 rounded-full font-bold"
-                    >
-                      🚪 Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            </>
+              {isMobileDropdownOpen && (
+                <div className="w-full text-center space-y-2 mt-3">
+                  <Link href="/profile" onClick={() => setMobileOpen(false)} className="block hover:underline">👤 Profile</Link>
+                  <Link href="/profile" onClick={() => setMobileOpen(false)} className="block hover:underline">⚙️ Settings</Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setMobileOpen(false);
+                    }}
+                    className="bg-red-500 text-white w-full py-2 rounded-full font-bold"
+                  >
+                    🚪 Logout
+                  </button>
+                </div>
+              )}
+            </div>
           )}
 
           {!user && (

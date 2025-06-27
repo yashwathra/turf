@@ -1,9 +1,11 @@
+//File : my-project/app/play/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import Navbar from "@/components/common/Navbar";
 import Card from "@/components/common/Card";
 import CategoryCard from "@/components/common/CategoryCard";
+
 import Button from "@/components/common/Button";
 import CardSkeleton from "@/components/common/CardSkeleton";
 import AdSlider from "@/components/common/AdSlider";
@@ -14,7 +16,7 @@ import Footer from "@/components/common/Footer";
 interface Turf {
   _id: string;
   name: string;
-  location: string;
+  city: string;
   imageUrl: string;
   description?: string;
   sports?: string[];
@@ -64,16 +66,18 @@ export default function PlayPage() {
 ) : (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
     {turfs.map((turf) => (
+      
       <Card
         key={turf._id}
         title={turf.name}
-        subtitle={turf.location}
+        subtitle={turf.city}
         imageUrl={turf.imageUrl}
         description={turf.description}
         sports={turf.sports}
       >
         <Button>PLAY NOW</Button>
       </Card>
+      
     ))}
   </div>
 )}

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 interface CardProps {
   id?: string;
   title: string;
-  subtitle?: string; // Will be used as City here
+  subtitle?: string; 
   description?: string;
   imageUrl?: string;
   sports?: string[];
@@ -52,8 +52,15 @@ export default function Card({
           {/* City (Top Right) */}
           {subtitle && (
             <div className="absolute top-6 right-8 bg-white/70 backdrop-blur px-3 py-1 text-xs font-semibold text-gray-800 rounded-xl shadow">
-              📍 {subtitle}
-            </div>
+      <Image
+        src="/location.svg"
+        alt="Location icon"
+        width={15}
+        height={15}
+        className="inline-block mr-1"
+      />
+      {subtitle}
+    </div>
           )}
 
           {/* Title (Bottom Left) */}
