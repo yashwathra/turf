@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 
 interface Booking {
   _id: string;
-  turfId: { name: string };
-  userId: { name: string; email: string };
+  turf: { name: string };
+  user: { name: string; email: string };
   date: string;
   slot: string;
-  amount: number;
+  price: number;
 }
 
 export default function OwnerBookings() {
@@ -16,7 +16,7 @@ export default function OwnerBookings() {
 
   useEffect(() => {
     const fetchBookings = async () => {
-      const res = await fetch("/api/booking/owner", {
+      const res = await fetch("/api/owner/bookings", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -35,12 +35,12 @@ export default function OwnerBookings() {
       ) : (
         <div className="space-y-3">
           {bookings.map((b) => (
-            <div key={b._id} className="border rounded p-3 shadow">
-              <p><strong>Turf:</strong> {b.turfId.name}</p>
-              <p><strong>User:</strong> {b.userId.name} ({b.userId.email})</p>
+            <div key={b._id} className="border rounded p-3 shadow bg-white">
+              <p><strong>Turf:</strong> {b.turf.name}</p>
+              <p><strong>User:</strong> {b.user.name} ({b.user.email})</p>
               <p><strong>Date:</strong> {b.date}</p>
               <p><strong>Slot:</strong> {b.slot}</p>
-              <p><strong>Amount:</strong> ₹{b.amount}</p>
+              <p><strong>Amount:</strong> ₹{b.price}</p>
             </div>
           ))}
         </div>

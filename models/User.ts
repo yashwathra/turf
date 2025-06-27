@@ -11,7 +11,7 @@ const UserSchema = new mongoose.Schema({
   },
   active: {
     type: Boolean,
-    default: true, // ✅ New field: user is active by default
+    default: true, 
   },
 }, { timestamps: true });
 

@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import Card from "@/components/common/Card";
 import Button from "@/components/common/Button";
 import Link from "next/link";
+import CardSkeleton from "@/components/common/CardSkeleton";
 
 interface Turf {
   _id: string;
@@ -49,7 +50,7 @@ export default function MyTurfsPage() {
     <div>
       <h1 className="text-2xl font-bold mb-6">🌱 Your Turfs</h1>
       {loading ? (
-        <p className="text-gray-500">Loading turfs...</p>
+        <CardSkeleton />
       ) : turfs.length === 0 ? (
         <p className="text-gray-600">You have no turfs. Start by adding one.</p>
       ) : (

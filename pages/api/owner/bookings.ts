@@ -1,4 +1,3 @@
-// pages/api/owner/bookings.ts
 import { connectDB } from "@/lib/db";
 import Turf from "@/models/Turf";
 import Booking from "@/models/Booking";
@@ -31,9 +30,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const turfIds = turfs.map((t) => t._id);
 
     // 📦 Fetch all bookings for these turfs
-    const bookings = await Booking.find({ turfId: { $in: turfIds } })
-      .populate("userId", "name email") // show user info
-      .populate("turfId", "name city"); // show turf info
+    const bookings = await Booking.find({ turf: { $in: turfIds } })
+      .populate("user", "name email")
+      .populate("turf", "name city")
+      .sort({ createdAt: -1 }); 
 
     res.status(200).json({ bookings });
   } catch (err) {
