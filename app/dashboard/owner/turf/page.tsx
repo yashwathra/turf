@@ -48,29 +48,34 @@ export default function MyTurfsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">🌱 Your Turfs</h1>
+      <h1 className="text-2xl font-bold mb-6">Your Turfs</h1>
       {loading ? (
-        <CardSkeleton />
-      ) : turfs.length === 0 ? (
-        <p className="text-gray-600">You have no turfs. Start by adding one.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {turfs.map((turf) => (
-            <Card
-              key={turf._id}
-              title={turf.name}
-              subtitle={turf.city} // ✅ changed from turf.location
-              imageUrl={turf.imageUrl}
-              description={turf.description}
-              sports={turf.sports}
-            >
-              <Link href={`/dashboard/owner/turf/edit/${turf._id}`}>
-                <Button>Edit</Button>
-              </Link>
-            </Card>
-          ))}
-        </div>
-      )}
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {Array.from({ length: 6 }).map((_, index) => (
+      <CardSkeleton key={index} />
+    ))}
+  </div>
+) : turfs.length === 0 ? (
+  <p className="text-gray-600">You have no turfs. Start by adding one.</p>
+) : (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {turfs.map((turf) => (
+      <Card
+        key={turf._id}
+        title={turf.name}
+        subtitle={turf.city}
+        imageUrl={turf.imageUrl}
+        description={turf.description}
+        sports={turf.sports}
+      >
+        <Link href={`/dashboard/owner/turf/edit/${turf._id}`}>
+          <Button>Edit</Button>
+        </Link>
+      </Card>
+    ))}
+  </div>
+)}
+
     </div>
   );
 }

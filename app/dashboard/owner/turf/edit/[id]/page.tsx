@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { toast } from "sonner";
 
 export default function EditTurfPage() {
   const router = useRouter();
@@ -68,7 +69,7 @@ export default function EditTurfPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        alert("❌ " + err.error);
+        toast.error(`❌ Error updating turf: ${err.error || "Unknown error"}`);
         return;
       }
 
@@ -76,7 +77,7 @@ export default function EditTurfPage() {
       router.push("/dashboard/owner");
     } catch (err) {
       console.error("❌ Error updating turf:", err);
-      alert("❌ Error updating turf");
+      toast.error("❌ Failed to update turf. Please try again later.");
     }
   };
 

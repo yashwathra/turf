@@ -22,7 +22,7 @@ interface Turf {
 
 export default function PlayPage() {
   const [turfs, setTurfs] = useState<Turf[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // 👈 loading state
+  const [isLoading, setIsLoading] = useState(true); 
 
   useEffect(() => {
     const fetchTurfs = async () => {

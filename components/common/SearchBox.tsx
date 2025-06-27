@@ -229,15 +229,17 @@ export default function SearchBox() {
           </div>
 
           {/* Date Input */}
-          <div className="flex-1 min-w-[150px]">
-            <input
-              type="date"
-              min={new Date().toISOString().split("T")[0]}
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full border px-4 py-2 rounded-md text-sm"
-            />
-          </div>
+<div className="flex-1 min-w-[150px]">
+  
+  <input
+    type="date"
+    min={new Date().toISOString().split("T")[0]}
+    value={selectedDate}
+    onChange={(e) => setSelectedDate(e.target.value)}
+    className="w-full border px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
+  />
+</div>
+
 
           {/* Search Button */}
           <div className="flex-1 min-w-[150px]">
