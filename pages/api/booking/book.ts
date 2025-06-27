@@ -1,7 +1,7 @@
-// pages/api/booking/book.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { connectDB } from "@/lib/db";
 import Booking from "@/models/Booking";
+import User from "@/models/User"; // ✅ Add this
 import { verifyToken } from "@/lib/auth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -18,32 +18,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
 
-  let user;
+  let decoded;
   try {
-    user = verifyToken(token);
+    decoded = verifyToken(token);
   } catch {
     return res.status(401).json({ message: "Unauthorized: Invalid or expired token" });
   }
 
-  const { turfId, date, slot, price } = req.body;
+  const user = await User.findById(decoded._id);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
 
-  if (!turfId || !date || !slot || !price) {
+  const { turfId, date, slot, price, sport } = req.body;
+
+  if (!turfId || !date || !slot || !price || !sport) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
-  // 🛑 Prevent double booking
   const alreadyBooked = await Booking.findOne({ turf: turfId, date, slot });
   if (alreadyBooked) {
     return res.status(409).json({ message: "Slot already booked" });
   }
 
-  // ✅ Save booking
   const booking = await Booking.create({
     user: user._id,
+    userName: user.name, // ✅ Now this works
     turf: turfId,
     date,
     slot,
     price,
+    sport,
   });
 
   return res.status(201).json({ message: "Booking confirmed", booking });

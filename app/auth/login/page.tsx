@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -13,7 +14,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     if (!email || !password) {
-      alert("❌ Please enter both email and password.");
+      toast.error("❌ Please enter both email and password.");
       return;
     }
 
@@ -30,7 +31,7 @@ export default function LoginPage() {
       if (!res.ok) throw new Error(data.error || "Login failed");
       localStorage.setItem("token", data.token);
 
-      alert("✅ Login successful!");
+      toast.success("✅ Login successful!");
 
       if (data?.user?.role === "admin") {
         window.location.href = "/dashboard/admin";
@@ -41,7 +42,7 @@ export default function LoginPage() {
       }
 
     } catch (error) {
-      alert("❌ " + (error instanceof Error ? error.message : "An error occurred"));
+      toast.error("❌ " + (error instanceof Error ? error.message : "An error occurred"));
     } finally {
       setLoading(false);
     }

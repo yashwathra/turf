@@ -8,7 +8,7 @@ import Link from "next/link";
 interface Turf {
   _id: string;
   name: string;
-  city: string; // ✅ changed from location
+  city: string; 
   imageUrl?: string;
   description?: string;
   sports?: string[];

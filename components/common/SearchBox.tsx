@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import searchIcon from "@/public/search.svg";
+import { toast } from "sonner";
+
 
 interface Turf {
   _id: string;
@@ -53,7 +55,7 @@ export default function SearchBox() {
     fetchCities();
   }, []);
 
-  // Load Turfs for selected city
+  // Load Turfs
   useEffect(() => {
     if (!selectedCity) return;
     const fetchTurfs = async () => {
@@ -71,7 +73,7 @@ export default function SearchBox() {
     fetchTurfs();
   }, [selectedCity]);
 
-  // Load sports for selected turf
+  // Load Sports
   useEffect(() => {
     if (!selectedTurf) return;
     const fetchSports = async () => {
@@ -90,10 +92,10 @@ export default function SearchBox() {
     fetchSports();
   }, [selectedTurf]);
 
-  // Handle Search
+  // Search
   const handleSearch = async () => {
     if (!selectedCity || !selectedTurf || !selectedSport || !selectedDate) {
-      alert("⚠️ Please select all fields");
+      toast.error("❌ Please select all fields.");
       return;
     }
     setLoadingSlots(true);
@@ -108,6 +110,51 @@ export default function SearchBox() {
       setShowSlots(true);
     } finally {
       setLoadingSlots(false);
+    }
+  };
+
+  // Confirm Booking
+  const handleBooking = async () => {
+    const token = localStorage.getItem("token"); // or get from cookie
+
+    if (!token) {
+      toast.error("❌ Please log in to book a slot.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/booking/book", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          turfId: selectedTurf?._id,
+          date: selectedDate,
+          slot: selectedSlot,
+          price: selectedTurf?.ratePerHour,
+          sport: selectedSport,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(`❌ ${data.error || "Booking failed"}`);
+        return;
+      }
+
+      toast.success("✅ Booking confirmed!");
+      // Clear all selections
+      setShowSlots(false);
+      setSelectedSlot("");
+      setSelectedTurf(null);
+      setSelectedDate("");
+      setSelectedSport("");
+    } catch (err) {
+      console.error("Booking error:", err);
+      toast.error("❌ An error occurred while booking. Please try again.");
     }
   };
 
@@ -250,7 +297,7 @@ export default function SearchBox() {
                   </span>
                   <div className="flex gap-4 flex-col sm:flex-row w-full sm:w-auto">
                     <button
-                      onClick={() => alert("✅ Booking confirmed!")}
+                      onClick={handleBooking}
                       className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg w-full sm:w-auto"
                     >
                       Confirm Booking

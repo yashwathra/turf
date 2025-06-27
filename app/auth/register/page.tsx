@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import Link from "next/link";
 
 export default function RegisterPage() {
@@ -17,12 +18,12 @@ export default function RegisterPage() {
     e.preventDefault();
 
     if (!name || !email || !password || !confirmPassword) {
-      alert("❌ All fields are required.");
+      toast.error("❌ Please fill in all fields");
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("❌ Passwords do not match");
+      toast.error("❌ Passwords do not match");
       return;
     }
 
@@ -37,13 +38,13 @@ export default function RegisterPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
 
-      alert("✅ Registered successfully!");
+      toast.success("✅ Registration successful! Redirecting to login...");
       router.push("/auth/login");
     } catch (err: unknown) {
       if (err instanceof Error) {
         alert("❌ " + err.message);
       } else {
-        alert("❌ Something went wrong.");
+        alert("❌ An unexpected error occurred. Please try again.");
       }
     } finally {
       setLoading(false);

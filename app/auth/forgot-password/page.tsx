@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordPage() {
@@ -26,7 +27,8 @@ export default function ForgotPasswordPage() {
 
       const data = await res.json();
       if (res.ok) {
-        setMessage("✅ OTP sent to your email.");
+        setMessage("✅ OTP sent to your email! Please check your inbox.");
+        toast.success("OTP sent! Please check your email.");
         setStep("reset");
       } else {
         setMessage("❌ " + data.error);
@@ -51,12 +53,14 @@ export default function ForgotPasswordPage() {
 
       const data = await res.json();
       if (res.ok) {
-        setMessage("✅ Password changed! Redirecting to login...");
+        setMessage("✅ Password reset successfully! Redirecting to login...");
+        toast.success("Password reset successfully! Redirecting to login...");
         setTimeout(() => {
           router.push("/auth/login");
         }, 2000); // 2 second delay
       } else {
         setMessage("❌ " + data.error);
+        toast.error(data.error || "Failed to reset password.");
       }
     }  finally {
       setLoading(false);

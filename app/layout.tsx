@@ -1,7 +1,7 @@
-
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
+import { Toaster } from "sonner"; 
 
 export const metadata = {
   title: "Turf Booking App | Book Your Game Easily",
@@ -9,7 +9,6 @@ export const metadata = {
   icons: {
     icons: "/favicon.ico",
   },
-
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -26,10 +25,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           {children}
+          <Toaster richColors position="top-right" /> 
           <Analytics />
         </AuthProvider>
       </body>
     </html>
   );
 }
-
