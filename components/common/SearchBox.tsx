@@ -93,41 +93,45 @@ export default function SearchBox() {
   }, [selectedTurf]);
 
   const handleSearch = async () => {
-    if (!selectedCity || !selectedTurf || !selectedSport || !selectedDate) {
-      toast.error("Please select all fields.");
-      return;
+  if (!selectedCity || !selectedTurf || !selectedSport || !selectedDate) {
+    toast.error("Please select all fields.");
+    return;
+  }
+
+  setLoadingSlots(true);
+  setShowSlots(false);
+
+  try {
+    const res = await fetch(
+      `/api/slots?turfId=${selectedTurf._id}&date=${selectedDate}&sport=${selectedSport.name}`
+    );
+    const data = await res.json();
+
+    let filtered = data.availableSlots || [];
+    const today = new Date().toISOString().split("T")[0];
+
+    if (selectedDate === today) {
+      const now = new Date();
+      const nowMins = now.getHours() * 60 + now.getMinutes();
+
+      filtered = filtered.filter((slot: string) => {
+        const [startTime] = slot.split(" - ");
+        const [hourStr, minStr] = startTime.split(":");
+        const mins = parseInt(hourStr) * 60 + parseInt(minStr);
+        return mins > nowMins;
+      });
     }
 
-    setLoadingSlots(true);
-    setShowSlots(false);
-    try {
-      const res = await fetch(`/api/slots?turfId=${selectedTurf._id}&date=${selectedDate}`);
-      const data = await res.json();
+    setAvailableSlots(filtered);
+    setBookedSlots(data.bookedSlots || []);
+    setShowSlots(true);
+  } catch {
+    toast.error("Failed to fetch slots.");
+  } finally {
+    setLoadingSlots(false);
+  }
+};
 
-      let filtered = data.availableSlots || [];
-      const today = new Date().toISOString().split("T")[0];
-
-      if (selectedDate === today) {
-        const now = new Date();
-        const nowMins = now.getHours() * 60 + now.getMinutes();
-
-        filtered = filtered.filter((slot: string) => {
-          const [startTime] = slot.split(" - ");
-          const [hourStr, minStr] = startTime.split(":");
-          const mins = parseInt(hourStr) * 60 + parseInt(minStr);
-          return mins > nowMins;
-        });
-      }
-
-      setAvailableSlots(filtered);
-      setBookedSlots(data.bookedSlots || []);
-      setShowSlots(true);
-    } catch {
-      toast.error("Failed to fetch slots.");
-    } finally {
-      setLoadingSlots(false);
-    }
-  };
 
   const handleBooking = async () => {
     const token = localStorage.getItem("token");
@@ -217,6 +221,7 @@ export default function SearchBox() {
               onChange={(e) => {
                 const selected = sports.find((s) => s.name === e.target.value);
                 setSelectedSport(selected || null);
+                setShowSlots(false); // 👈 ADDED
               }}
               className="w-full border px-4 py-2 rounded-md text-sm"
               disabled={!selectedTurf}
@@ -236,7 +241,10 @@ export default function SearchBox() {
               type="date"
               min={new Date().toISOString().split("T")[0]}
               value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
+              onChange={(e) => {
+                setSelectedDate(e.target.value);
+                setShowSlots(false); // 👈 ADDED
+              }}
               className="w-full border px-4 py-2 rounded-md text-sm"
             />
           </div>

@@ -73,7 +73,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // ✅ Check if slot is already booked
-  const alreadyBooked = await Booking.findOne({ turf: turfId, date, slot });
+  const alreadyBooked = await Booking.findOne({ turf: turfId, date, slot, sport });
+
   if (alreadyBooked) {
     return res.status(409).json({ message: "Slot already booked" });
   }

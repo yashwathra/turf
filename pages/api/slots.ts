@@ -4,12 +4,10 @@ import { connectDB } from "@/lib/db";
 import Booking from "@/models/Booking";
 import Turf from "@/models/Turf";
 
-// 🕒 Helper to format time consistently (e.g., "09:00")
 const formatTime = (date: Date): string => {
   return `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
 };
 
-// 🧠 Helper to generate slots like "09:00 - 10:00"
 function generateTimeSlots(start: string, end: string, duration: number): string[] {
   const slots: string[] = [];
 
@@ -40,27 +38,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method !== "GET") return res.status(405).end("Method Not Allowed");
 
-  const { turfId, date } = req.query;
-  if (!turfId || !date) {
-    return res.status(400).json({ error: "Missing turfId or date" });
+  const { turfId, date, sport } = req.query;
+
+  if (!turfId || !date || !sport) {
+    return res.status(400).json({ error: "Missing turfId, date or sport" });
   }
 
   try {
     const turf = await Turf.findById(turfId);
     if (!turf) return res.status(404).json({ error: "Turf not found" });
 
-    // Generate slots using turf's dynamic settings
     const allSlots = generateTimeSlots(
       turf.openingTime || "06:00",
       turf.closingTime || "22:00",
       turf.slotDuration || 60
     );
 
-    // Fetch all bookings for that turf on the selected date
-    const bookings = await Booking.find({ turf: turfId, date });
+    const bookings = await Booking.find({ turf: turfId, date, sport });
+
     const bookedSlots = bookings.map((b) => b.slot.trim());
 
-    // Return only available slots
     const availableSlots = allSlots.filter(
       (slot) => !bookedSlots.includes(slot.trim())
     );
