@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const turfs = await Turf.find({ city: city });
+    const turfs = await Turf.find({ city, isActive: true }); // ✅ filter active only
     res.status(200).json({ turfs });
   } catch (err) {
     console.error("Error fetching turfs by city:", err);

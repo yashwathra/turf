@@ -18,12 +18,12 @@ export default function RegisterPage() {
     e.preventDefault();
 
     if (!name || !email || !password || !confirmPassword) {
-      toast.error("❌ Please fill in all fields");
+      toast.error("Please fill in all fields");
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error("❌ Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
@@ -38,7 +38,7 @@ export default function RegisterPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
 
-      toast.success("✅ Registration successful! Redirecting to login...");
+      toast.success("Registration successful! Redirecting to login...");
       router.push("/auth/login");
     } catch (err: unknown) {
       if (err instanceof Error) {

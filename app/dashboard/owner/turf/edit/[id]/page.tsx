@@ -4,19 +4,32 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
 
+// ✅ Define form structure
+interface TurfFormData {
+  name: string;
+  city: string;
+  imageUrl: string;
+  description: string;
+  sports: string[];
+  amenities: string[];
+  slotDuration: number;
+  isActive: boolean;
+}
+
 export default function EditTurfPage() {
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<TurfFormData>({
     name: "",
     city: "",
     imageUrl: "",
     description: "",
-    sports: [] as string[],
-    amenities: [] as string[],
+    sports: [],
+    amenities: [],
     slotDuration: 60,
+    isActive: true,
   });
 
   useEffect(() => {
@@ -29,7 +42,17 @@ export default function EditTurfPage() {
           },
         });
         const data = await res.json();
-        setForm(data);
+
+        setForm({
+          name: data.name || "",
+          city: data.city || "",
+          imageUrl: data.imageUrl || "",
+          description: data.description || "",
+          sports: data.sports || [],
+          amenities: data.amenities || [],
+          slotDuration: data.slotDuration || 60,
+          isActive: data.isActive ?? true,
+        });
       } catch (err) {
         console.error("❌ Error loading turf:", err);
       }
@@ -83,116 +106,134 @@ export default function EditTurfPage() {
 
   return (
     <div className="max-w-5xl mx-auto mt-10 px-6 py-8 bg-white/40 backdrop-blur-md rounded-3xl shadow-2xl">
-  <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">✏️ Edit Turf</h1>
+      <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">✏️ Edit Turf</h1>
 
-  <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    {/* Left Column */}
-    <div className="space-y-4">
-      <input
-        name="name"
-        placeholder="Turf Name"
-        value={form.name}
-        onChange={handleChange}
-        className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-400"
-        required
-      />
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left Column */}
+        <div className="space-y-4">
+          <input
+            name="name"
+            placeholder="Turf Name"
+            value={form.name}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-xl"
+            required
+          />
 
-      <input
-        name="city"
-        placeholder="City"
-        value={form.city}
-        onChange={handleChange}
-        className="w-full p-3 border border-gray-300 rounded-xl"
-        required
-      />
+          <input
+            name="city"
+            placeholder="City"
+            value={form.city}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-xl"
+            required
+          />
 
-      <input
-        name="imageUrl"
-        placeholder="Image URL"
-        value={form.imageUrl}
-        onChange={handleChange}
-        className="w-full p-3 border border-gray-300 rounded-xl"
-      />
+          <input
+            name="imageUrl"
+            placeholder="Image URL"
+            value={form.imageUrl}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-xl"
+          />
 
-      <select
-        name="slotDuration"
-        value={form.slotDuration}
-        onChange={handleChange}
-        className="w-full p-3 border border-gray-300 rounded-xl"
-      >
-        <option value={30}>30 minutes</option>
-        <option value={60}>1 hour</option>
-      </select>
+          <select
+            name="slotDuration"
+            value={form.slotDuration}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-xl"
+          >
+            <option value={30}>30 minutes</option>
+            <option value={60}>1 hour</option>
+          </select>
 
-      <input
-        name="amenities"
-        placeholder="Amenities (e.g., Lights, Security)"
-        value={form.amenities.join(", ")}
-        onChange={(e) => handleArrayChange("amenities", e.target.value)}
-        className="w-full p-3 border border-gray-300 rounded-xl"
-      />
-    </div>
-
-    {/* Right Column */}
-    <div className="space-y-4">
-      <textarea
-        name="description"
-        placeholder="Description"
-        value={form.description}
-        onChange={handleChange}
-        rows={4}
-        className="w-full p-3 border border-gray-300 rounded-xl"
-      />
-
-      {/* Sports */}
-      <div>
-        <span className="text-sm font-semibold mb-1 block">Select Sports</span>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[180px] overflow-y-auto pr-1">
-          {[
-            "Football", "Cricket", "Tennis", "Badminton", "Volleyball", "Basketball", "Hockey",
-            "Rugby", "Table Tennis", "Squash", "Baseball", "Golf", "Swimming", "Athletics",
-            "Gymnastics", "Boxing", "Martial Arts", "Cycling", "Rowing", "Sailing",
-          ].map((sport) => (
-            <label key={sport} className="flex items-center gap-2 text-sm text-gray-700">
-              <input
-                type="checkbox"
-                value={sport}
-                checked={form.sports.includes(sport)}
-                onChange={(e) => {
-                  const updated = e.target.checked
-                    ? [...form.sports, sport]
-                    : form.sports.filter((s) => s !== sport);
-                  setForm((prev) => ({ ...prev, sports: updated }));
-                }}
-              />
-              {sport}
-            </label>
-          ))}
+          <input
+            name="amenities"
+            placeholder="Amenities (e.g., Lights, Security)"
+            value={form.amenities.join(", ")}
+            onChange={(e) => handleArrayChange("amenities", e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-xl"
+          />
         </div>
-      </div>
+
+        {/* Right Column */}
+        <div className="space-y-4">
+          <textarea
+            name="description"
+            placeholder="Description"
+            value={form.description}
+            onChange={handleChange}
+            rows={4}
+            className="w-full p-3 border border-gray-300 rounded-xl"
+          />
+
+          {/* Sports */}
+          <div>
+            <span className="text-sm font-semibold mb-1 block">Select Sports</span>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[180px] overflow-y-auto pr-1">
+              {[
+                "Football", "Cricket", "Tennis", "Badminton", "Volleyball", "Basketball",
+                "Hockey", "Rugby", "Table Tennis", "Squash", "Baseball", "Golf",
+                "Swimming", "Athletics", "Gymnastics", "Boxing", "Martial Arts",
+                "Cycling", "Rowing", "Sailing",
+              ].map((sport) => (
+                <label key={sport} className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    value={sport}
+                    checked={form.sports.includes(sport)}
+                    onChange={(e) => {
+                      const updated = e.target.checked
+                        ? [...form.sports, sport]
+                        : form.sports.filter((s) => s !== sport);
+                      setForm((prev) => ({ ...prev, sports: updated }));
+                    }}
+                  />
+                  {sport}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Turf Active Toggle */}
+         <div className="flex items-center gap-4 mt-6">
+  <label className="font-medium text-gray-700">Turf Active</label>
+  <label className="relative inline-flex items-center cursor-pointer group">
+    <input
+      type="checkbox"
+      className="sr-only peer"
+      checked={form.isActive}
+      onChange={(e) =>
+        setForm((prev) => ({ ...prev, isActive: e.target.checked }))
+      }
+    />
+    {/* Track */}
+    <div className="w-11 h-6 bg-gray-300 peer-checked:bg-green-500 rounded-full transition-colors duration-300" />
+    {/* Knob */}
+    <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 peer-checked:translate-x-5 group-hover:scale-110" />
+  </label>
+</div>
+
+        </div>
+
+        {/* Buttons */}
+        <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-4 mt-2">
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard/owner")}
+            className="bg-gray-300 hover:bg-gray-400 text-gray-800 w-full sm:w-auto py-3 px-6 rounded-xl font-semibold transition"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            className="bg-red-500 hover:bg-red-600 text-white w-full sm:w-auto py-3 px-6 rounded-xl font-semibold transition"
+          >
+            Update Turf
+          </button>
+        </div>
+      </form>
     </div>
-
-    {/* Full Width Button */}
-   
-<div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-4 mt-2">
-  <button
-    type="button"
-    onClick={() => router.push("/dashboard/owner")}
-    className="bg-gray-300 hover:bg-gray-400 text-gray-800 w-full sm:w-auto py-3 px-6 rounded-xl font-semibold transition"
-  >
-  Cancel
-  </button>
-
-  <button
-    type="submit"
-    className="bg-red-500 hover:bg-red-600 text-white w-full sm:w-auto py-3 px-6 rounded-xl font-semibold transition"
-  >
-  Update Turf
-  </button>
-</div>
-
-  </form>
-</div>
-
   );
 }

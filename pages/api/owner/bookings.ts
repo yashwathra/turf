@@ -25,17 +25,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ error: "Access denied: Not an owner" });
     }
 
-    // 📥 Get all turf IDs owned by this owner
+    // 📥 Get owner's turf IDs
     const turfs = await Turf.find({ ownerId: decoded._id });
     const turfIds = turfs.map((t) => t._id);
 
-    // 📦 Fetch all bookings for these turfs
-    const bookings = await Booking.find({ turf: { $in: turfIds } })
-      .populate("user", "name email")
-      .populate("turf", "name city")
-      .sort({ createdAt: -1 }); 
+    // 📦 Get bookings for those turfs
+    const bookings = await Booking.find({ turf: { $in: turfIds } });
 
-    res.status(200).json({ bookings });
+    const total = bookings.length;
+
+    // 🕒 Compare dates for status
+    const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+    const completed = bookings.filter(b => b.date < today).length;
+    const pending = bookings.filter(b => b.date >= today).length;
+
+    const revenue = bookings
+      .filter(b => b.date < today)
+      .reduce((sum, b) => sum + b.price, 0);
+
+    const profit = revenue * 0.6;
+    const loss = revenue * 0.1;
+
+    return res.status(200).json({
+      total,
+      completed,
+      pending,
+      cancelled: 0, // no cancellation logic yet
+      revenue,
+      profit,
+      loss,
+    });
+
   } catch (err) {
     console.error("❌ Owner Booking API Error:", err);
     res.status(500).json({ error: "Internal Server Error" });

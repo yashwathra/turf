@@ -14,7 +14,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     if (!email || !password) {
-      toast.error("❌ Please enter both email and password.");
+      toast.error("Please enter both email and password.");
       return;
     }
 
@@ -31,7 +31,7 @@ export default function LoginPage() {
       if (!res.ok) throw new Error(data.error || "Login failed");
       localStorage.setItem("token", data.token);
 
-      toast.success("✅ Login successful!");
+      toast.success("Login successful!");
 
       if (data?.user?.role === "admin") {
         window.location.href = "/dashboard/admin";

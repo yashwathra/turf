@@ -31,21 +31,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const {
       name,
-      city, 
+      city,
       amenities = [],
       slotDuration,
       imageUrl,
       description,
       sports,
+      isActive, // ✅ Accept from frontend
     } = req.body;
 
-    // ✅ Define allowed sports
-    const allowedSports = ["Football", "Cricket", "Tennis", "Badminton", "Volleyball","Basketball", "Hockey", "Rugby", "Table Tennis", "Squash", "Baseball", "Golf", "Swimming", "Athletics", "Gymnastics", "Boxing", "Martial Arts", "Cycling", "Rowing", "Sailing"];
+    const allowedSports = [
+      "Football", "Cricket", "Tennis", "Badminton", "Volleyball", "Basketball", "Hockey",
+      "Rugby", "Table Tennis", "Squash", "Baseball", "Golf", "Swimming", "Athletics",
+      "Gymnastics", "Boxing", "Martial Arts", "Cycling", "Rowing", "Sailing"
+    ];
 
-    // ✅ Validate selected sports
-    const filteredSports = (sports as string[]).filter((s) =>
-      allowedSports.includes(s)
-    );
+    const filteredSports = (sports as string[]).filter((s) => allowedSports.includes(s));
 
     if (!name || !city || !slotDuration || filteredSports.length === 0) {
       return res.status(400).json({
@@ -62,6 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       imageUrl: imageUrl || "/turf-image.jpg",
       description: description || "A premium turf for all your sports needs.",
       ownerId: decoded._id,
+      isActive: isActive !== false, // ✅ default true unless explicitly false
     });
 
     return res.status(201).json({ message: "✅ Turf created successfully", turf });

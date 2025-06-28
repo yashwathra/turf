@@ -1,4 +1,4 @@
-//File: pages/api/turf/[id].ts
+// File: pages/api/turf/[id].ts
 import { NextApiRequest, NextApiResponse } from "next";
 import { connectDB } from "@/lib/db";
 import Turf from "@/models/Turf";
@@ -23,7 +23,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  // 👇 From here on: Only allow PUT if user is owner
   if (req.method === "PUT") {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ error: "Unauthorized" });
@@ -42,7 +41,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ error: "Forbidden: You are not the owner" });
     }
 
-    const { name, city, imageUrl, description, sports, amenities, slotDuration } = req.body;
+    const {
+      name,
+      city,
+      imageUrl,
+      description,
+      sports,
+      amenities,
+      slotDuration,
+      isActive, // ✅ added
+    } = req.body;
 
     turf.name = name;
     turf.city = city;
@@ -51,6 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     turf.sports = sports;
     turf.amenities = amenities;
     turf.slotDuration = slotDuration;
+    turf.isActive = isActive !== false; // ✅ allow toggling active/inactive
 
     await turf.save();
     return res.status(200).json({ message: "Turf updated" });

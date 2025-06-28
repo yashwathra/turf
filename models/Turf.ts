@@ -3,9 +3,9 @@ import mongoose from "mongoose";
 const TurfSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    city: { type: String, required: true }, // 🆕 Used in filters
+    city: { type: String, required: true }, 
     sports: [String],
-    amenities: [String],
+    amenities: [String], 
     slotDuration: {
       type: Number,
       default: 60, // in minutes
@@ -26,6 +26,18 @@ const TurfSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+
+    // 🆕 Active/Inactive status
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+
+    // 🆕 Turf facilities (optional, or use `amenities`)
+    facilities: {
+      type: [String],
+      default: [],
     },
   },
   { timestamps: true }

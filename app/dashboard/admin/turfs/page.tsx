@@ -12,6 +12,7 @@ interface Turf {
   imageUrl?: string;
   description?: string;
   sports?: string[];
+   isActive?: boolean;
 }
 
 export default function AdminAllTurfsPage() {
@@ -51,7 +52,7 @@ export default function AdminAllTurfsPage() {
             <Card
               key={turf._id}
               title={turf.name}
-              subtitle={turf.city}
+              subtitle={`${turf.city}${turf.isActive === false ? " (Inactive)" : ""}`}
               imageUrl={turf.imageUrl}
               description={turf.description}
               sports={turf.sports}

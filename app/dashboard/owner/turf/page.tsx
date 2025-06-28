@@ -10,10 +10,11 @@ import CardSkeleton from "@/components/common/CardSkeleton";
 interface Turf {
   _id: string;
   name: string;
-  city: string; 
+  city: string;
   imageUrl?: string;
   description?: string;
   sports?: string[];
+  isActive?: boolean;
 }
 
 export default function MyTurfsPage() {
@@ -46,36 +47,91 @@ export default function MyTurfsPage() {
     fetchTurfs();
   }, [user]);
 
+  const handleToggle = async (turfId: string, current: boolean) => {
+    try {
+      const res = await fetch("/api/owner/turf-toggle", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ turfId, isActive: !current }),
+      });
+
+      if (res.ok) {
+        setTurfs((prev) =>
+          prev.map((t) =>
+            t._id === turfId ? { ...t, isActive: !current } : t
+          )
+        );
+      } else {
+        console.error("Toggle failed");
+      }
+    } catch (error) {
+      console.error("Toggle error:", error);
+    }
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Your Turfs</h1>
       {loading ? (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {Array.from({ length: 6 }).map((_, index) => (
-      <CardSkeleton key={index} />
-    ))}
-  </div>
-) : turfs.length === 0 ? (
-  <p className="text-gray-600">You have no turfs. Start by adding one.</p>
-) : (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {turfs.map((turf) => (
-      <Card
-        key={turf._id}
-        title={turf.name}
-        subtitle={turf.city}
-        imageUrl={turf.imageUrl}
-        description={turf.description}
-        sports={turf.sports}
-      >
-        <Link href={`/dashboard/owner/turf/edit/${turf._id}`}>
-          <Button>Edit</Button>
-        </Link>
-      </Card>
-    ))}
-  </div>
-)}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <CardSkeleton key={index} />
+          ))}
+        </div>
+      ) : turfs.length === 0 ? (
+        <p className="text-gray-600">You have no turfs. Start by adding one.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {turfs.map((turf) => (
+        <Card
+  key={turf._id}
+  title={turf.name}
+  subtitle={turf.city}
+  imageUrl={turf.imageUrl}
+  sports={turf.sports}
+>
+  <div className="space-y-2">
+    {/* Description */}
+    <p className="text-sm text-gray-600 line-clamp-2">
+      {turf.description || "No description available."}
+    </p>
 
+    {/* Status badge */}
+    <span
+      className={`inline-block text-xs font-medium px-2 py-1 rounded-full ${
+        turf.isActive ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"
+      }`}
+    >
+      {turf.isActive ? "Active" : "Inactive"}
+    </span>
+
+    {/* Actions */}
+    <div className="flex justify-between items-center pt-2">
+      <Link href={`/dashboard/owner/turf/edit/${turf._id}`}>
+        <Button className="text-sm px-3 py-1">Edit</Button>
+      </Link>
+
+      <label className="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          className="sr-only peer"
+          checked={turf.isActive ?? false}
+          onChange={() => handleToggle(turf._id, turf.isActive || false)}
+        />
+        <div className="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors duration-300" />
+        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 peer-checked:translate-x-5" />
+      </label>
+    </div>
+  </div>
+</Card>
+
+
+          ))}
+        </div>
+      )}
     </div>
   );
 }
