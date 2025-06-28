@@ -17,19 +17,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await connectDB();
 
-    // 🔐 Auth Check
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({ error: "No token provided" });
-    }
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ error: "No token provided" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
-    if (!decoded || decoded.role !== "owner") {
+    if (decoded.role !== "owner") {
       return res.status(403).json({ error: "Access denied: Not an owner" });
     }
 
-    // 🏟️ Get All Turfs for Owner
+    // 🔍 Get all turfs owned by this owner
     const turfs = await Turf.find({ ownerId: decoded._id });
     if (!turfs.length) {
       return res.status(200).json({
@@ -45,8 +41,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const turfIds = turfs.map((t) => t._id);
-
-    // 📅 Get All Bookings for These Turfs
     const bookings = await Booking.find({ turf: { $in: turfIds } })
       .populate("turf", "name")
       .populate("user", "name email");
@@ -59,19 +53,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let cancelled = 0;
     let revenue = 0;
 
-    bookings.forEach((b) => {
-      const isPast = b.date < today;
-      const isFuture = b.date >= today;
+    await Promise.all(
+      bookings.map(async (b) => {
+        const isPast = b.date < today;
 
-      if (b.status === "cancelled") {
-        cancelled++;
-      } else if (isPast && b.status === "completed") {
-        completed++;
-        revenue += b.price || 0;
-      } else if (isFuture && b.status !== "cancelled") {
-        pending++;
-      }
-    });
+        if (b.status === "cancelled") {
+          cancelled++;
+        } else if (isPast) {
+          if (b.status === "pending") {
+            b.status = "completed";
+            await b.save(); // ✅ Auto-update
+          }
+          completed++;
+          revenue += b.price || 0;
+        } else {
+          pending++;
+        }
+      })
+    );
 
     const profit = revenue * 0.6;
     const loss = revenue * 0.1;

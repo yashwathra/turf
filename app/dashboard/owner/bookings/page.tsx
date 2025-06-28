@@ -11,11 +11,14 @@ interface Booking {
   price: number;
   sport: string;
   status: "pending" | "completed" | "cancelled";
+  createdAt: string;
 }
 
 export default function OwnerBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSport, setSelectedSport] = useState("All");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -52,23 +55,64 @@ export default function OwnerBookings() {
     </div>
   );
 
+  const filteredBookings = bookings
+    .filter((b) => selectedSport === "All" || b.sport === selectedSport)
+    .filter(
+      (b) =>
+        b.user.name.toLowerCase().includes(search.toLowerCase()) ||
+        b.user.email.toLowerCase().includes(search.toLowerCase())
+    )
+    .slice()
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const sportOptions = ["All", ...new Set(bookings.map((b) => b.sport))];
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">📋 Your Turf Bookings</h1>
 
+      {/* 🎯 Filter by Sport */}
+      <div className="flex flex-wrap gap-3 mb-4">
+        {sportOptions.map((sport) => (
+          <button
+            key={sport}
+            className={`px-4 py-1 rounded-full text-sm ${
+              selectedSport === sport
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-800"
+            }`}
+            onClick={() => setSelectedSport(sport)}
+          >
+            {sport}
+          </button>
+        ))}
+      </div>
+
+      {/* 🔍 Search by User */}
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search by user name or email..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border border-gray-300 px-4 py-2 rounded-md w-full max-w-md"
+        />
+      </div>
+
+      {/* 📦 Bookings List */}
       {loading ? (
         <div className="grid gap-6 md:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
             <SkeletonCard key={i} />
           ))}
         </div>
-      ) : bookings.length === 0 ? (
+      ) : filteredBookings.length === 0 ? (
         <div className="text-center text-gray-500 py-8 bg-white/50 rounded-2xl shadow-inner backdrop-blur-md">
           <p>No bookings found.</p>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
-          {bookings.map((b) => (
+          {filteredBookings.map((b) => (
             <div
               key={b._id}
               className="bg-white/60 backdrop-blur-xl rounded-2xl shadow-xl p-5 hover:shadow-2xl transition"
@@ -101,6 +145,9 @@ export default function OwnerBookings() {
                 </span>
               </p>
               <p className="text-green-700 font-bold mt-2">₹ {b.price.toFixed(2)}</p>
+              <p className="text-sm text-gray-500">
+                Booked at: {new Date(b.createdAt).toLocaleString()}
+              </p>
             </div>
           ))}
         </div>

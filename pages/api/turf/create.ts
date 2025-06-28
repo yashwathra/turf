@@ -48,12 +48,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       "Gymnastics", "Boxing", "Martial Arts", "Cycling", "Rowing", "Sailing"
     ];
 
-    const validatedSports = (sports as { name: string; ratePerHour: number }[]).filter(
-      (sport) =>
-        allowedSports.includes(sport.name) &&
-        typeof sport.ratePerHour === "number" &&
-        sport.ratePerHour > 0
-    );
+    const validatedSports = (sports as { name: string; ratePerHour: number }[])
+      .filter(
+        (sport) =>
+          allowedSports.includes(sport.name) &&
+          typeof sport.ratePerHour === "number" &&
+          sport.ratePerHour > 0
+      )
+      .map((sport) => ({
+        ...sport,
+        available: true, // ✅ default availability
+      }));
 
     if (!name || !city || !slotDuration || validatedSports.length === 0) {
       return res.status(400).json({

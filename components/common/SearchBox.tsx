@@ -9,7 +9,7 @@ interface Turf {
   _id: string;
   name: string;
   city: string;
-  sports: { name: string; ratePerHour: number }[];
+  sports: { name: string; ratePerHour: number; available: boolean }[];
   imageUrl?: string;
   description?: string;
 }
@@ -17,6 +17,7 @@ interface Turf {
 interface Sport {
   name: string;
   ratePerHour: number;
+  available: boolean;
 }
 
 export default function SearchBox() {
@@ -81,8 +82,11 @@ export default function SearchBox() {
       try {
         const res = await fetch(`/api/turf/${selectedTurf._id}`);
         const data = await res.json();
-        setSports(data.sports || []);
-        setSelectedSport(data.sports?.[0] || null);
+        const activeSports = (data.sports || []).filter(
+          (s: Sport) => s.available
+        );
+        setSports(activeSports);
+        setSelectedSport(activeSports[0] || null);
       } catch {
         toast.error("Failed to load sports.");
       } finally {
@@ -93,45 +97,44 @@ export default function SearchBox() {
   }, [selectedTurf]);
 
   const handleSearch = async () => {
-  if (!selectedCity || !selectedTurf || !selectedSport || !selectedDate) {
-    toast.error("Please select all fields.");
-    return;
-  }
-
-  setLoadingSlots(true);
-  setShowSlots(false);
-
-  try {
-    const res = await fetch(
-      `/api/slots?turfId=${selectedTurf._id}&date=${selectedDate}&sport=${selectedSport.name}`
-    );
-    const data = await res.json();
-
-    let filtered = data.availableSlots || [];
-    const today = new Date().toISOString().split("T")[0];
-
-    if (selectedDate === today) {
-      const now = new Date();
-      const nowMins = now.getHours() * 60 + now.getMinutes();
-
-      filtered = filtered.filter((slot: string) => {
-        const [startTime] = slot.split(" - ");
-        const [hourStr, minStr] = startTime.split(":");
-        const mins = parseInt(hourStr) * 60 + parseInt(minStr);
-        return mins > nowMins;
-      });
+    if (!selectedCity || !selectedTurf || !selectedSport || !selectedDate) {
+      toast.error("Please select all fields.");
+      return;
     }
 
-    setAvailableSlots(filtered);
-    setBookedSlots(data.bookedSlots || []);
-    setShowSlots(true);
-  } catch {
-    toast.error("Failed to fetch slots.");
-  } finally {
-    setLoadingSlots(false);
-  }
-};
+    setLoadingSlots(true);
+    setShowSlots(false);
 
+    try {
+      const res = await fetch(
+        `/api/slots?turfId=${selectedTurf._id}&date=${selectedDate}&sport=${selectedSport.name}`
+      );
+      const data = await res.json();
+
+      let filtered = data.availableSlots || [];
+      const today = new Date().toISOString().split("T")[0];
+
+      if (selectedDate === today) {
+        const now = new Date();
+        const nowMins = now.getHours() * 60 + now.getMinutes();
+
+        filtered = filtered.filter((slot: string) => {
+          const [startTime] = slot.split(" - ");
+          const [hourStr, minStr] = startTime.split(":");
+          const mins = parseInt(hourStr) * 60 + parseInt(minStr);
+          return mins > nowMins;
+        });
+      }
+
+      setAvailableSlots(filtered);
+      setBookedSlots(data.bookedSlots || []);
+      setShowSlots(true);
+    } catch {
+      toast.error("Failed to fetch slots.");
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
 
   const handleBooking = async () => {
     const token = localStorage.getItem("token");
@@ -190,7 +193,9 @@ export default function SearchBox() {
             >
               <option value="">Select City</option>
               {cities.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
             </select>
           </div>
@@ -209,31 +214,36 @@ export default function SearchBox() {
             >
               <option value="">Select Turf</option>
               {turfs.map((t) => (
-                <option key={t._id} value={t._id}>{t.name}</option>
+                <option key={t._id} value={t._id}>
+                  {t.name}
+                </option>
               ))}
             </select>
           </div>
 
           {/* Sport */}
           <div className="flex-1 min-w-[150px]">
-            <select
-              value={selectedSport?.name || ""}
-              onChange={(e) => {
-                const selected = sports.find((s) => s.name === e.target.value);
-                setSelectedSport(selected || null);
-                setShowSlots(false); // 👈 ADDED
-              }}
-              className="w-full border px-4 py-2 rounded-md text-sm"
-              disabled={!selectedTurf}
-            >
-              <option value="">Select Sport</option>
-              {sports.map((s) => (
-                <option key={s.name} value={s.name}>
-                  {s.name} (₹{s.ratePerHour})
-                </option>
-              ))}
-            </select>
-          </div>
+  <select
+    value={selectedSport?.name || ""}
+    onChange={(e) => {
+      const selected = sports.find((s) => s.name === e.target.value);
+      setSelectedSport(selected || null);
+      setShowSlots(false);
+    }}
+    className="w-full border px-4 py-2 rounded-md text-sm"
+    disabled={!selectedTurf || sports.length === 0}
+  >
+    <option value="">
+      {sports.length === 0 ? "Select Sport" : "No Sport"}
+    </option>
+    {sports.map((s) => (
+      <option key={s.name} value={s.name}>
+        {s.name} (₹{s.ratePerHour})
+      </option>
+    ))}
+  </select>
+</div>
+
 
           {/* Date */}
           <div className="flex-1 min-w-[150px]">
@@ -243,7 +253,7 @@ export default function SearchBox() {
               value={selectedDate}
               onChange={(e) => {
                 setSelectedDate(e.target.value);
-                setShowSlots(false); // 👈 ADDED
+                setShowSlots(false);
               }}
               className="w-full border px-4 py-2 rounded-md text-sm"
             />
@@ -313,29 +323,7 @@ export default function SearchBox() {
                           : "bg-green-600 hover:bg-green-700 text-white"
                       }`}
                     >
-                      {bookingLoading ? (
-                        <span className="flex items-center gap-2">
-                          <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                              fill="none"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                            />
-                          </svg>
-                          Booking...
-                        </span>
-                      ) : (
-                        "Confirm Booking"
-                      )}
+                      {bookingLoading ? "Booking..." : "Confirm Booking"}
                     </button>
                     <button
                       onClick={() => setShowSlots(false)}

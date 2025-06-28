@@ -21,7 +21,12 @@ interface TurfFormData {
   isActive: boolean;
   openingTime: string;
   closingTime: string;
-  sports: { [key: string]: number }; // sport name -> rate
+  sports: {
+    [key: string]: {
+      ratePerHour: number;
+      available: boolean;
+    };
+  };
 }
 
 export default function CreateTurfPage() {
@@ -37,7 +42,7 @@ export default function CreateTurfPage() {
     isActive: true,
     openingTime: "06:00",
     closingTime: "22:00",
-    sports: {}, // e.g. { "Football": 800, "Cricket": 1000 }
+    sports: {},
   });
 
   const handleInputChange = (
@@ -50,12 +55,19 @@ export default function CreateTurfPage() {
   const toggleSport = (sport: string) => {
     const updated = { ...form.sports };
     if (updated[sport]) delete updated[sport];
-    else updated[sport] = 800; // default price
+    else updated[sport] = { ratePerHour: 800, available: true };
     setForm({ ...form, sports: updated });
   };
 
   const updateSportRate = (sport: string, rate: number) => {
-    const updated = { ...form.sports, [sport]: rate };
+    const updated = { ...form.sports };
+    if (updated[sport]) updated[sport].ratePerHour = rate;
+    setForm({ ...form, sports: updated });
+  };
+
+  const toggleSportAvailability = (sport: string) => {
+    const updated = { ...form.sports };
+    if (updated[sport]) updated[sport].available = !updated[sport].available;
     setForm({ ...form, sports: updated });
   };
 
@@ -71,9 +83,10 @@ export default function CreateTurfPage() {
     const payload = {
       ...form,
       amenities: form.amenities.split(",").map((a) => a.trim()),
-      sports: Object.entries(form.sports).map(([name, ratePerHour]) => ({
+      sports: Object.entries(form.sports).map(([name, config]) => ({
         name,
-        ratePerHour,
+        ratePerHour: config.ratePerHour,
+        available: config.available,
       })),
     };
 
@@ -114,21 +127,35 @@ export default function CreateTurfPage() {
 
         {/* Sports Section */}
         <div className="md:col-span-2">
-          <span className="text-sm font-semibold block mb-2">Select Sports & Pricing</span>
+          <span className="text-sm font-semibold block mb-2">Select Sports, Pricing & Availability</span>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {allSports.map((sport) => (
               <div key={sport} className="flex items-center gap-2">
                 <input type="checkbox" checked={!!form.sports[sport]} onChange={() => toggleSport(sport)} />
                 <span className="text-sm">{sport}</span>
-                {form.sports[sport] !== undefined && (
-                  <input
-                    type="number"
-                    placeholder="Rate ₹/hr"
-                    value={form.sports[sport]}
-                    onChange={(e) => updateSportRate(sport, parseInt(e.target.value))}
-                    className="ml-auto w-24 px-2 py-1 border rounded"
-                    min={0}
-                  />
+
+                {form.sports[sport] && (
+                  <>
+                    <input
+                      type="number"
+                      value={form.sports[sport].ratePerHour}
+                      onChange={(e) => updateSportRate(sport, parseInt(e.target.value))}
+                      className="ml-auto w-24 px-2 py-1 border rounded"
+                      min={0}
+                    />
+
+                    <label className="inline-flex items-center cursor-pointer ml-2">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={form.sports[sport].available}
+                        onChange={() => toggleSportAvailability(sport)}
+                      />
+                      <div className="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-green-500 relative transition-all duration-300">
+                        <div className="absolute left-1 top-0.5 bg-white w-4 h-4 rounded-full shadow transition-transform peer-checked:translate-x-5" />
+                      </div>
+                    </label>
+                  </>
                 )}
               </div>
             ))}
@@ -137,14 +164,21 @@ export default function CreateTurfPage() {
 
         {/* Active Toggle */}
         <div className="md:col-span-2 flex items-center gap-4 mt-4">
-          <label className="font-medium text-gray-700">Turf Active</label>
-          <label className="inline-flex items-center cursor-pointer">
-            <input type="checkbox" className="sr-only peer" checked={form.isActive} onChange={(e) => setForm((prev) => ({ ...prev, isActive: e.target.checked }))} />
-            <div className="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 relative transition-all duration-300">
-              <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-md transition-transform peer-checked:translate-x-5" />
-            </div>
-          </label>
-        </div>
+  <label className="font-medium text-gray-700">Turf Active</label>
+  <label className="relative inline-flex items-center w-11 h-6 cursor-pointer">
+    <input
+      type="checkbox"
+      className="sr-only peer"
+      checked={form.isActive}
+      onChange={(e) =>
+        setForm((prev) => ({ ...prev, isActive: e.target.checked }))
+      }
+    />
+    <div className="w-full h-full bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors duration-300" />
+    <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 peer-checked:translate-x-5" />
+  </label>
+</div>
+
 
         <div className="md:col-span-2">
           <button type="submit" className="bg-red-500 hover:bg-red-600 text-white w-full py-3 rounded-xl font-semibold transition">
