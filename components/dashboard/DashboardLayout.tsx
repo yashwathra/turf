@@ -15,6 +15,8 @@ const navItems = {
     { name: "My Turfs", href: "/dashboard/owner/turf" },
     { name: "Turf Bookings", href: "/dashboard/owner/bookings" },
     { name: "Add Turf", href: "/dashboard/owner/turf/create" },
+    { name: "Staff", href: "/dashboard/owner/staff" },
+    
   ],
   admin: [
     { name: "Users", href: "/dashboard/admin/users" },
