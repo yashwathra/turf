@@ -17,6 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await connectDB();
 
+    // 🔐 Auth Check
     const authHeader = req.headers.authorization;
     const token = authHeader?.split(" ")[1];
     if (!token) {
@@ -28,6 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ error: "Access denied: Not an owner" });
     }
 
+    // 🏟️ Get All Turfs for Owner
     const turfs = await Turf.find({ ownerId: decoded._id });
     if (!turfs.length) {
       return res.status(200).json({
@@ -44,20 +46,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const turfIds = turfs.map((t) => t._id);
 
+    // 📅 Get All Bookings for These Turfs
     const bookings = await Booking.find({ turf: { $in: turfIds } })
       .populate("turf", "name")
       .populate("user", "name email");
 
-    const total = bookings.length;
     const today = new Date().toISOString().split("T")[0];
 
-    const completed = bookings.filter(b => b.date < today && b.status !== "cancelled").length;
-    const pending = bookings.filter(b => b.date >= today && b.status !== "cancelled").length;
-    const cancelled = bookings.filter(b => b.status === "cancelled").length;
+    const total = bookings.length;
+    let completed = 0;
+    let pending = 0;
+    let cancelled = 0;
+    let revenue = 0;
 
-    const revenue = bookings
-      .filter(b => b.date < today && b.status === "completed")
-      .reduce((sum, b) => sum + (b.price || 0), 0);
+    bookings.forEach((b) => {
+      const isPast = b.date < today;
+      const isFuture = b.date >= today;
+
+      if (b.status === "cancelled") {
+        cancelled++;
+      } else if (isPast && b.status === "completed") {
+        completed++;
+        revenue += b.price || 0;
+      } else if (isFuture && b.status !== "cancelled") {
+        pending++;
+      }
+    });
 
     const profit = revenue * 0.6;
     const loss = revenue * 0.1;
@@ -72,7 +86,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       loss,
       bookings,
     });
-
   } catch (err) {
     console.error("❌ Owner Booking API Error:", err);
     return res.status(500).json({ error: "Internal Server Error" });

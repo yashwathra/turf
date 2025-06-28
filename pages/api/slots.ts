@@ -4,7 +4,12 @@ import { connectDB } from "@/lib/db";
 import Booking from "@/models/Booking";
 import Turf from "@/models/Turf";
 
-// 🧠 Helper to generate slots
+// 🕒 Helper to format time consistently (e.g., "09:00")
+const formatTime = (date: Date): string => {
+  return `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
+};
+
+// 🧠 Helper to generate slots like "09:00 - 10:00"
 function generateTimeSlots(start: string, end: string, duration: number): string[] {
   const slots: string[] = [];
 
@@ -18,9 +23,9 @@ function generateTimeSlots(start: string, end: string, duration: number): string
   endTime.setHours(endH, endM, 0, 0);
 
   while (startTime < endTime) {
-    const slotStart = startTime.toTimeString().slice(0, 5); // "HH:MM"
+    const slotStart = formatTime(startTime);
     startTime.setMinutes(startTime.getMinutes() + duration);
-    const slotEnd = startTime.toTimeString().slice(0, 5);
+    const slotEnd = formatTime(startTime);
 
     if (startTime <= endTime) {
       slots.push(`${slotStart} - ${slotEnd}`);
@@ -36,26 +41,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method !== "GET") return res.status(405).end("Method Not Allowed");
 
   const { turfId, date } = req.query;
-  if (!turfId || !date) return res.status(400).json({ error: "Missing turfId or date" });
+  if (!turfId || !date) {
+    return res.status(400).json({ error: "Missing turfId or date" });
+  }
 
   try {
     const turf = await Turf.findById(turfId);
     if (!turf) return res.status(404).json({ error: "Turf not found" });
 
-    // 🕒 Use turf's dynamic values
+    // Generate slots using turf's dynamic settings
     const allSlots = generateTimeSlots(
       turf.openingTime || "06:00",
       turf.closingTime || "22:00",
       turf.slotDuration || 60
     );
 
+    // Fetch all bookings for that turf on the selected date
     const bookings = await Booking.find({ turf: turfId, date });
-    const bookedSlots = bookings.map((b) => b.slot);
-    const availableSlots = allSlots.filter((slot) => !bookedSlots.includes(slot));
+    const bookedSlots = bookings.map((b) => b.slot.trim());
+
+    // Return only available slots
+    const availableSlots = allSlots.filter(
+      (slot) => !bookedSlots.includes(slot.trim())
+    );
 
     return res.status(200).json({ availableSlots, bookedSlots });
   } catch (err) {
-    console.error("Slot API Error:", err);
+    console.error("❌ Slot API Error:", err);
     return res.status(500).json({ error: "Failed to fetch slots" });
   }
 }

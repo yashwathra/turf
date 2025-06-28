@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const turf = await Turf.findById(id);
       if (!turf) return res.status(404).json({ error: "Turf not found" });
-      return res.status(200).json(turf); // ✅ anyone can view
+      return res.status(200).json(turf);
     } catch {
       return res.status(500).json({ error: "Error fetching turf" });
     }
@@ -50,23 +50,43 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       amenities,
       slotDuration,
       isActive,
-      openingTime,    // ✅ added
-      closingTime,    // ✅ added
+      openingTime,
+      closingTime,
     } = req.body;
+
+    const allowedSports = [
+      "Football", "Cricket", "Tennis", "Badminton", "Volleyball", "Basketball",
+      "Hockey", "Rugby", "Table Tennis", "Squash", "Baseball", "Golf",
+      "Swimming", "Athletics", "Gymnastics", "Boxing", "Martial Arts",
+      "Cycling", "Rowing", "Sailing"
+    ];
+
+    const validatedSports = (sports as { name: string; ratePerHour: number }[]).filter(
+      (sport) =>
+        allowedSports.includes(sport.name) &&
+        typeof sport.ratePerHour === "number" &&
+        sport.ratePerHour > 0
+    );
+
+    if (!name || !city || !slotDuration || validatedSports.length === 0) {
+      return res.status(400).json({
+        error: "Missing required fields or invalid sports format",
+      });
+    }
 
     turf.name = name;
     turf.city = city;
     turf.imageUrl = imageUrl;
     turf.description = description;
-    turf.sports = sports;
+    turf.sports = validatedSports; // ✅ updated to object format
     turf.amenities = amenities;
     turf.slotDuration = slotDuration;
     turf.isActive = isActive !== false;
-    turf.openingTime = openingTime || "06:00"; // ✅ default fallback
-    turf.closingTime = closingTime || "22:00"; // ✅ default fallback
+    turf.openingTime = openingTime || "06:00";
+    turf.closingTime = closingTime || "22:00";
 
     await turf.save();
-    return res.status(200).json({ message: "Turf updated" });
+    return res.status(200).json({ message: "Turf updated successfully", turf });
   }
 
   return res.status(405).json({ error: "Method Not Allowed" });

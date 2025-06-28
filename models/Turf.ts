@@ -4,16 +4,18 @@ const TurfSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     city: { type: String, required: true }, 
-    sports: [String],
+    sports: [
+  {
+    name: { type: String, required: true },
+    ratePerHour: { type: Number, required: true },
+  },
+],
     amenities: [String], 
     slotDuration: {
       type: Number,
       default: 60, // in minutes
     },
-    ratePerHour: {
-      type: Number,
-      default: 800,
-    },
+    
     imageUrl: {
       type: String,
       default: "/turf-image.jpg",

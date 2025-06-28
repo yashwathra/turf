@@ -9,7 +9,7 @@ interface TurfFormData {
   city: string;
   imageUrl: string;
   description: string;
-  sports: string[];
+  sports: { name: string; ratePerHour: number }[]; // ✅ updated
   amenities: string[];
   slotDuration: number;
   isActive: boolean;
@@ -45,13 +45,12 @@ export default function EditTurfPage() {
           },
         });
         const data = await res.json();
-
         setForm({
           name: data.name || "",
           city: data.city || "",
           imageUrl: data.imageUrl || "",
           description: data.description || "",
-          sports: data.sports || [],
+          sports: data.sports || [], // ✅ assumes [{ name, ratePerHour }]
           amenities: data.amenities || [],
           slotDuration: data.slotDuration || 60,
           isActive: data.isActive ?? true,
@@ -81,6 +80,21 @@ export default function EditTurfPage() {
       ...prev,
       [name]: value.split(",").map((v) => v.trim()),
     }));
+  };
+
+  const toggleSport = (sportName: string) => {
+    const exists = form.sports.find((s) => s.name === sportName);
+    const updated = exists
+      ? form.sports.filter((s) => s.name !== sportName)
+      : [...form.sports, { name: sportName, ratePerHour: 800 }];
+    setForm((prev) => ({ ...prev, sports: updated }));
+  };
+
+  const updateSportRate = (sportName: string, newRate: number) => {
+    const updated = form.sports.map((s) =>
+      s.name === sportName ? { ...s, ratePerHour: newRate } : s
+    );
+    setForm((prev) => ({ ...prev, sports: updated }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -197,22 +211,30 @@ export default function EditTurfPage() {
                 "Hockey", "Rugby", "Table Tennis", "Squash", "Baseball", "Golf",
                 "Swimming", "Athletics", "Gymnastics", "Boxing", "Martial Arts",
                 "Cycling", "Rowing", "Sailing",
-              ].map((sport) => (
-                <label key={sport} className="flex items-center gap-2 text-sm text-gray-700">
-                  <input
-                    type="checkbox"
-                    value={sport}
-                    checked={form.sports.includes(sport)}
-                    onChange={(e) => {
-                      const updated = e.target.checked
-                        ? [...form.sports, sport]
-                        : form.sports.filter((s) => s !== sport);
-                      setForm((prev) => ({ ...prev, sports: updated }));
-                    }}
-                  />
-                  {sport}
-                </label>
-              ))}
+              ].map((sport) => {
+                const selected = form.sports.find((s) => s.name === sport);
+                return (
+                  <div key={sport} className="flex items-center gap-2 text-sm text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={!!selected}
+                      onChange={() => toggleSport(sport)}
+                    />
+                    <span>{sport}</span>
+                    {selected && (
+                      <input
+                        type="number"
+                        min={0}
+                        value={selected.ratePerHour}
+                        onChange={(e) =>
+                          updateSportRate(sport, parseInt(e.target.value))
+                        }
+                        className="ml-auto px-2 py-1 border rounded w-20"
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 

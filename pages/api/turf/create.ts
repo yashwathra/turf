@@ -48,24 +48,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       "Gymnastics", "Boxing", "Martial Arts", "Cycling", "Rowing", "Sailing"
     ];
 
-    const filteredSports = (sports as string[]).filter((s) => allowedSports.includes(s));
+    const validatedSports = (sports as { name: string; ratePerHour: number }[]).filter(
+      (sport) =>
+        allowedSports.includes(sport.name) &&
+        typeof sport.ratePerHour === "number" &&
+        sport.ratePerHour > 0
+    );
 
-    // Validate required fields
-    if (!name || !city || !slotDuration || filteredSports.length === 0) {
+    if (!name || !city || !slotDuration || validatedSports.length === 0) {
       return res.status(400).json({
-        error: "Please provide name, city, slotDuration and at least one valid sport",
+        error: "Please provide name, city, slotDuration and at least one valid sport with price",
       });
     }
 
-    // ✅ Create new Turf with opening and closing time
     const turf = await Turf.create({
       name,
       city,
-      sports: filteredSports,
       amenities,
       slotDuration,
       imageUrl: imageUrl || "/turf-image.jpg",
       description: description || "A premium turf for all your sports needs.",
+      sports: validatedSports,
       ownerId: decoded._id,
       isActive: isActive !== false,
       openingTime: openingTime || "06:00",
