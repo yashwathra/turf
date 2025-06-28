@@ -37,7 +37,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       imageUrl,
       description,
       sports,
-      isActive, // ✅ Accept from frontend
+      isActive,
+      openingTime,
+      closingTime,
     } = req.body;
 
     const allowedSports = [
@@ -48,12 +50,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const filteredSports = (sports as string[]).filter((s) => allowedSports.includes(s));
 
+    // Validate required fields
     if (!name || !city || !slotDuration || filteredSports.length === 0) {
       return res.status(400).json({
         error: "Please provide name, city, slotDuration and at least one valid sport",
       });
     }
 
+    // ✅ Create new Turf with opening and closing time
     const turf = await Turf.create({
       name,
       city,
@@ -63,7 +67,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       imageUrl: imageUrl || "/turf-image.jpg",
       description: description || "A premium turf for all your sports needs.",
       ownerId: decoded._id,
-      isActive: isActive !== false, // ✅ default true unless explicitly false
+      isActive: isActive !== false,
+      openingTime: openingTime || "06:00",
+      closingTime: closingTime || "22:00",
     });
 
     return res.status(201).json({ message: "✅ Turf created successfully", turf });

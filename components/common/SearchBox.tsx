@@ -5,7 +5,6 @@ import Image from "next/image";
 import searchIcon from "@/public/search.svg";
 import { toast } from "sonner";
 
-
 interface Turf {
   _id: string;
   name: string;
@@ -35,10 +34,10 @@ export default function SearchBox() {
   const [loadingCities, setLoadingCities] = useState(true);
   const [loadingTurfs, setLoadingTurfs] = useState(false);
   const [loadingSports, setLoadingSports] = useState(false);
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   const isLoadingAll = loadingCities || loadingTurfs || loadingSports;
 
-  // Load Cities
   useEffect(() => {
     const fetchCities = async () => {
       setLoadingCities(true);
@@ -55,7 +54,6 @@ export default function SearchBox() {
     fetchCities();
   }, []);
 
-  // Load Turfs
   useEffect(() => {
     if (!selectedCity) return;
     const fetchTurfs = async () => {
@@ -73,7 +71,6 @@ export default function SearchBox() {
     fetchTurfs();
   }, [selectedCity]);
 
-  // Load Sports
   useEffect(() => {
     if (!selectedTurf) return;
     const fetchSports = async () => {
@@ -92,7 +89,6 @@ export default function SearchBox() {
     fetchSports();
   }, [selectedTurf]);
 
-  // Search
   const handleSearch = async () => {
     if (!selectedCity || !selectedTurf || !selectedSport || !selectedDate) {
       toast.error("❌ Please select all fields.");
@@ -101,11 +97,24 @@ export default function SearchBox() {
     setLoadingSlots(true);
     setShowSlots(false);
     try {
-      const res = await fetch(
-        `/api/slots?turfId=${selectedTurf._id}&date=${selectedDate}`
-      );
+      const res = await fetch(`/api/slots?turfId=${selectedTurf._id}&date=${selectedDate}`);
       const data = await res.json();
-      setAvailableSlots(data.availableSlots || []);
+
+      let filteredSlots = data.availableSlots || [];
+
+      // Filter out past time slots if today
+      const today = new Date().toISOString().split("T")[0];
+      if (selectedDate === today) {
+        const now = new Date();
+        const nowMins = now.getHours() * 60 + now.getMinutes();
+        filteredSlots = filteredSlots.filter((slot: string) => {
+          const [hourStr, minStr] = slot.split(":");
+          const slotMins = parseInt(hourStr) * 60 + parseInt(minStr);
+          return slotMins > nowMins;
+        });
+      }
+
+      setAvailableSlots(filteredSlots);
       setBookedSlots(data.bookedSlots || []);
       setShowSlots(true);
     } finally {
@@ -113,17 +122,16 @@ export default function SearchBox() {
     }
   };
 
-  // Confirm Booking
   const handleBooking = async () => {
-    const token = localStorage.getItem("token"); // or get from cookie
-
+    const token = localStorage.getItem("token");
     if (!token) {
       toast.error("❌ Please log in to book a slot.");
       return;
     }
 
+    setBookingLoading(true);
     try {
-      const res = await fetch("/api/booking/book", {
+      const res = await fetch("/api/booking/crate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -146,7 +154,6 @@ export default function SearchBox() {
       }
 
       toast.success("✅ Booking confirmed!");
-      // Clear all selections
       setShowSlots(false);
       setSelectedSlot("");
       setSelectedTurf(null);
@@ -154,17 +161,18 @@ export default function SearchBox() {
       setSelectedSport("");
     } catch (err) {
       console.error("Booking error:", err);
-      toast.error("❌ An error occurred while booking. Please try again.");
+      toast.error("❌ An error occurred while booking.");
+    } finally {
+      setBookingLoading(false);
     }
   };
 
   return (
     <section className="relative z-20 w-full max-w-screen-xl px-2 sm:px-4 mx-auto -mt-14 md:-mt-2 lg:-mt-24">
       <div className="bg-white shadow-xl rounded-2xl p-4 md:p-6 w-full max-w-5xl mx-auto">
-
         {/* Filter Row */}
         <div className="flex flex-wrap gap-4 justify-center sm:justify-start mb-4">
-          {/* City Select */}
+          {/* City */}
           <div className="flex-1 min-w-[150px]">
             {loadingCities ? (
               <div className="h-10 bg-gray-200 rounded-md animate-pulse" />
@@ -186,7 +194,7 @@ export default function SearchBox() {
             )}
           </div>
 
-          {/* Turf Select */}
+          {/* Turf */}
           <div className="flex-1 min-w-[150px]">
             {loadingTurfs ? (
               <div className="h-10 bg-gray-200 rounded-md animate-pulse" />
@@ -209,7 +217,7 @@ export default function SearchBox() {
             )}
           </div>
 
-          {/* Sport Select */}
+          {/* Sport */}
           <div className="flex-1 min-w-[150px]">
             {loadingSports ? (
               <div className="h-10 bg-gray-200 rounded-md animate-pulse" />
@@ -228,20 +236,18 @@ export default function SearchBox() {
             )}
           </div>
 
-          {/* Date Input */}
-<div className="flex-1 min-w-[150px]">
-  
-  <input
-    type="date"
-    min={new Date().toISOString().split("T")[0]}
-    value={selectedDate}
-    onChange={(e) => setSelectedDate(e.target.value)}
-    className="w-full border px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
-  />
-</div>
+          {/* Date */}
+          <div className="flex-1 min-w-[150px]">
+            <input
+              type="date"
+              min={new Date().toISOString().split("T")[0]}
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full border px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
+            />
+          </div>
 
-
-          {/* Search Button */}
+          {/* Search */}
           <div className="flex-1 min-w-[150px]">
             <button
               onClick={handleSearch}
@@ -254,14 +260,13 @@ export default function SearchBox() {
           </div>
         </div>
 
-        {/* Slot Results */}
+        {/* Slots */}
         <div className="mt-4 transition-all duration-300">
           {loadingSlots && (
             <div className="text-center text-gray-600 py-4 animate-pulse">
               Fetching available slots...
             </div>
           )}
-
           {showSlots && !loadingSlots && (
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-center sm:text-left">
@@ -291,7 +296,6 @@ export default function SearchBox() {
                   </button>
                 ))}
               </div>
-
               {selectedSlot && (
                 <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-3">
                   <span className="text-lg font-medium">
@@ -300,9 +304,14 @@ export default function SearchBox() {
                   <div className="flex gap-4 flex-col sm:flex-row w-full sm:w-auto">
                     <button
                       onClick={handleBooking}
-                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg w-full sm:w-auto"
+                      disabled={bookingLoading}
+                      className={`px-6 py-2 rounded-lg w-full sm:w-auto transition ${
+                        bookingLoading
+                          ? "bg-green-400 cursor-not-allowed"
+                          : "bg-green-600 hover:bg-green-700 text-white"
+                      }`}
                     >
-                      Confirm Booking
+                      {bookingLoading ? "Booking..." : "Confirm Booking"}
                     </button>
                     <button
                       onClick={() => setShowSlots(false)}

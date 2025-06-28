@@ -9,28 +9,39 @@ interface Booking {
   date: string;
   slot: string;
   price: number;
+  sport: string;
+  status: "pending" | "completed" | "cancelled";
 }
 
 export default function OwnerBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true); // loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBookings = async () => {
       setLoading(true);
-      const res = await fetch("/api/owner/bookings", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await res.json();
-      if (res.ok) setBookings(data.bookings);
-      setLoading(false);
+      try {
+        const res = await fetch("/api/owner/bookings", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch");
+
+        const data = await res.json();
+        setBookings(data.bookings || []);
+      } catch (err) {
+        console.error("❌ Error fetching bookings:", err);
+        setBookings([]);
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchBookings();
   }, []);
 
-  // Skeleton card component
   const SkeletonCard = () => (
     <div className="bg-white/60 backdrop-blur-xl rounded-2xl shadow-xl p-5 animate-pulse space-y-3">
       <div className="h-6 bg-gray-300 rounded w-1/2" />
@@ -47,7 +58,7 @@ export default function OwnerBookings() {
 
       {loading ? (
         <div className="grid gap-6 md:grid-cols-2">
-          {[...Array(4)].map((_, i) => (
+          {Array.from({ length: 4 }).map((_, i) => (
             <SkeletonCard key={i} />
           ))}
         </div>
@@ -67,14 +78,29 @@ export default function OwnerBookings() {
                 <strong>User:</strong> {b.user.name} ({b.user.email})
               </p>
               <p className="text-gray-700">
+                <strong>Sport:</strong> {b.sport}
+              </p>
+              <p className="text-gray-700">
                 <strong>Date:</strong> {b.date}
               </p>
               <p className="text-gray-700">
                 <strong>Slot:</strong> {b.slot}
               </p>
-              <p className="text-green-700 font-bold mt-2">
-                ₹ {b.price.toFixed(2)}
+              <p className="text-gray-700">
+                <strong>Status:</strong>{" "}
+                <span
+                  className={`font-semibold ${
+                    b.status === "completed"
+                      ? "text-green-600"
+                      : b.status === "cancelled"
+                      ? "text-red-600"
+                      : "text-yellow-600"
+                  }`}
+                >
+                  {b.status}
+                </span>
               </p>
+              <p className="text-green-700 font-bold mt-2">₹ {b.price.toFixed(2)}</p>
             </div>
           ))}
         </div>

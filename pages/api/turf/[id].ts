@@ -49,7 +49,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       sports,
       amenities,
       slotDuration,
-      isActive, // ✅ added
+      isActive,
+      openingTime,    // ✅ added
+      closingTime,    // ✅ added
     } = req.body;
 
     turf.name = name;
@@ -59,7 +61,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     turf.sports = sports;
     turf.amenities = amenities;
     turf.slotDuration = slotDuration;
-    turf.isActive = isActive !== false; // ✅ allow toggling active/inactive
+    turf.isActive = isActive !== false;
+    turf.openingTime = openingTime || "06:00"; // ✅ default fallback
+    turf.closingTime = closingTime || "22:00"; // ✅ default fallback
 
     await turf.save();
     return res.status(200).json({ message: "Turf updated" });

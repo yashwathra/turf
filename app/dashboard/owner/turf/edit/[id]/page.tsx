@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
 
-// ✅ Define form structure
 interface TurfFormData {
   name: string;
   city: string;
@@ -14,6 +13,8 @@ interface TurfFormData {
   amenities: string[];
   slotDuration: number;
   isActive: boolean;
+  openingTime: string;
+  closingTime: string;
 }
 
 export default function EditTurfPage() {
@@ -30,6 +31,8 @@ export default function EditTurfPage() {
     amenities: [],
     slotDuration: 60,
     isActive: true,
+    openingTime: "06:00",
+    closingTime: "22:00",
   });
 
   useEffect(() => {
@@ -52,6 +55,8 @@ export default function EditTurfPage() {
           amenities: data.amenities || [],
           slotDuration: data.slotDuration || 60,
           isActive: data.isActive ?? true,
+          openingTime: data.openingTime || "06:00",
+          closingTime: data.closingTime || "22:00",
         });
       } catch (err) {
         console.error("❌ Error loading turf:", err);
@@ -147,6 +152,23 @@ export default function EditTurfPage() {
             <option value={60}>1 hour</option>
           </select>
 
+          {/* Opening and Closing Time */}
+          <input
+            type="time"
+            name="openingTime"
+            value={form.openingTime}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-xl"
+          />
+
+          <input
+            type="time"
+            name="closingTime"
+            value={form.closingTime}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-xl"
+          />
+
           <input
             name="amenities"
             placeholder="Amenities (e.g., Lights, Security)"
@@ -167,7 +189,6 @@ export default function EditTurfPage() {
             className="w-full p-3 border border-gray-300 rounded-xl"
           />
 
-          {/* Sports */}
           <div>
             <span className="text-sm font-semibold mb-1 block">Select Sports</span>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[180px] overflow-y-auto pr-1">
@@ -195,25 +216,21 @@ export default function EditTurfPage() {
             </div>
           </div>
 
-          {/* Turf Active Toggle */}
-         <div className="flex items-center gap-4 mt-6">
-  <label className="font-medium text-gray-700">Turf Active</label>
-  <label className="relative inline-flex items-center cursor-pointer group">
-    <input
-      type="checkbox"
-      className="sr-only peer"
-      checked={form.isActive}
-      onChange={(e) =>
-        setForm((prev) => ({ ...prev, isActive: e.target.checked }))
-      }
-    />
-    {/* Track */}
-    <div className="w-11 h-6 bg-gray-300 peer-checked:bg-green-500 rounded-full transition-colors duration-300" />
-    {/* Knob */}
-    <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 peer-checked:translate-x-5 group-hover:scale-110" />
-  </label>
-</div>
-
+          <div className="flex items-center gap-4 mt-6">
+            <label className="font-medium text-gray-700">Turf Active</label>
+            <label className="relative inline-flex items-center cursor-pointer group">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={form.isActive}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, isActive: e.target.checked }))
+                }
+              />
+              <div className="w-11 h-6 bg-gray-300 peer-checked:bg-green-500 rounded-full transition-colors duration-300" />
+              <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 peer-checked:translate-x-5 group-hover:scale-110" />
+            </label>
+          </div>
         </div>
 
         {/* Buttons */}

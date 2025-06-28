@@ -39,6 +39,18 @@ const TurfSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+
+    // 🆕 Turf opens at
+    openingTime: {
+      type: String, 
+      default: "06:00",
+    },
+
+    // 🆕 Turf closes at
+    closingTime: {
+      type: String, 
+      default: "22:00",
+    },
   },
   { timestamps: true }
 );

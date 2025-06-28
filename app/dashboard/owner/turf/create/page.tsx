@@ -13,6 +13,8 @@ interface TurfFormData {
   imageUrl: string;
   description: string;
   isActive: boolean;
+  openingTime: string;
+  closingTime: string;
 }
 
 export default function CreateTurfPage() {
@@ -27,6 +29,8 @@ export default function CreateTurfPage() {
     imageUrl: "",
     description: "",
     isActive: true,
+    openingTime: "06:00",
+    closingTime: "22:00",
   });
 
   const handleChange = (
@@ -111,6 +115,24 @@ export default function CreateTurfPage() {
         </select>
 
         <input
+          name="openingTime"
+          type="time"
+          value={form.openingTime}
+          onChange={handleChange}
+          className="p-3 border border-gray-300 rounded-xl w-full"
+          required
+        />
+
+        <input
+          name="closingTime"
+          type="time"
+          value={form.closingTime}
+          onChange={handleChange}
+          className="p-3 border border-gray-300 rounded-xl w-full"
+          required
+        />
+
+        <input
           name="imageUrl"
           placeholder="Image URL (optional)"
           value={form.imageUrl}
@@ -157,25 +179,24 @@ export default function CreateTurfPage() {
             })}
           </div>
         </div>
-        
-        {/* Active Toggle */}
-<div className="md:col-span-2 flex items-center gap-4 mt-4">
-  <label className="font-medium text-gray-700">Turf Active</label>
-  <label className="inline-flex items-center cursor-pointer">
-    <input
-      type="checkbox"
-      className="sr-only peer"
-      checked={form.isActive}
-      onChange={(e) =>
-        setForm((prev) => ({ ...prev, isActive: e.target.checked }))
-      }
-    />
-    <div className="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 relative transition-all duration-300">
-      <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-md transition-transform peer-checked:translate-x-5" />
-    </div>
-  </label>
-</div>
 
+        {/* Active Toggle */}
+        <div className="md:col-span-2 flex items-center gap-4 mt-4">
+          <label className="font-medium text-gray-700">Turf Active</label>
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={form.isActive}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, isActive: e.target.checked }))
+              }
+            />
+            <div className="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 relative transition-all duration-300">
+              <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-md transition-transform peer-checked:translate-x-5" />
+            </div>
+          </label>
+        </div>
 
         <div className="md:col-span-2">
           <button
