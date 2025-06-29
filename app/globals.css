@@ -6,3 +6,20 @@
 @import 'swiper/css';
 @import 'swiper/css/navigation';
 @import 'swiper/css/pagination';
+
+/* Hide scrollbar for WebKit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* optional */
+}
+
+/* Hide scrollbar for Firefox */
+html {
+  scrollbar-width: none; /* Firefox */
+}
+
+/* This helps body scroll but keeps scrollbar hidden */
+body {
+  -ms-overflow-style: none;  /* IE and Edge */
+  overflow-y: scroll;
+}

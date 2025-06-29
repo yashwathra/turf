@@ -5,14 +5,16 @@ import User from "@/models/User";
 import Turf from "@/models/Turf";
 import { verifyToken } from "@/lib/auth";
 
-// ⏱️ Generate slot strings like "10:00 - 11:00"
+// 🧠 Helper: Make "HH:mm - HH:mm" time slots
 function generateTimeSlots(start: string, end: string, duration: number): string[] {
   const slots: string[] = [];
+
   const [startH, startM] = start.split(":").map(Number);
   const [endH, endM] = end.split(":").map(Number);
 
   const startTime = new Date();
   startTime.setHours(startH, startM, 0, 0);
+
   const endTime = new Date();
   endTime.setHours(endH, endM, 0, 0);
 
@@ -38,12 +40,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(" ")[1];
-
   if (!token) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
 
-  let decoded;
+  let decoded: { _id: string };
   try {
     decoded = verifyToken(token);
   } catch {
@@ -51,9 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const user = await User.findById(decoded._id);
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
+  if (!user) return res.status(404).json({ message: "User not found" });
 
   const { turfId, date, slot, price, sport } = req.body;
 
@@ -61,25 +60,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ message: "Missing required fields" });
   }
 
-  // ✅ Get turf and validate the slot
   const turf = await Turf.findById(turfId);
-  if (!turf) {
-    return res.status(404).json({ message: "Turf not found" });
-  }
+  if (!turf) return res.status(404).json({ message: "Turf not found" });
 
-  const availableSlots = generateTimeSlots(turf.openingTime, turf.closingTime, turf.slotDuration);
-  if (!availableSlots.includes(slot)) {
+  const validSlots = generateTimeSlots(
+    turf.openingTime || "06:00",
+    turf.closingTime || "22:00",
+    turf.slotDuration || 60
+  );
+
+  if (!validSlots.includes(slot)) {
     return res.status(400).json({ message: "Invalid slot for this turf's timing" });
   }
 
-  // ✅ Check if slot is already booked
   const alreadyBooked = await Booking.findOne({ turf: turfId, date, slot, sport });
-
   if (alreadyBooked) {
     return res.status(409).json({ message: "Slot already booked" });
   }
 
-  // ✅ Create booking
   const booking = await Booking.create({
     user: user._id,
     userName: user.name,

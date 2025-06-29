@@ -5,19 +5,23 @@ import Image from "next/image";
 import searchIcon from "@/public/search.svg";
 import { toast } from "sonner";
 
+interface PricingSlot {
+  startTime: string;
+  endTime: string;
+  rate: number;
+}
+interface Sport {
+  name: string;
+  available: boolean;
+  pricing: PricingSlot[];
+}
 interface Turf {
   _id: string;
   name: string;
   city: string;
-  sports: { name: string; ratePerHour: number; available: boolean }[];
   imageUrl?: string;
   description?: string;
-}
-
-interface Sport {
-  name: string;
-  ratePerHour: number;
-  available: boolean;
+  sports: Sport[];
 }
 
 export default function SearchBox() {
@@ -31,7 +35,7 @@ export default function SearchBox() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
 
-  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [availableSlots, setAvailableSlots] = useState<{ time: string; price: number | null }[]>([]);
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
   const [showSlots, setShowSlots] = useState(false);
 
@@ -60,6 +64,9 @@ export default function SearchBox() {
 
   useEffect(() => {
     if (!selectedCity) return;
+    setSelectedTurf(null);
+    setSelectedSport(null);
+    setShowSlots(false);
     const fetchTurfs = async () => {
       setLoadingTurfs(true);
       try {
@@ -77,16 +84,16 @@ export default function SearchBox() {
 
   useEffect(() => {
     if (!selectedTurf) return;
+    setSelectedSport(null);
+    setShowSlots(false);
     const fetchSports = async () => {
       setLoadingSports(true);
       try {
         const res = await fetch(`/api/turf/${selectedTurf._id}`);
         const data = await res.json();
-        const activeSports = (data.sports || []).filter(
-          (s: Sport) => s.available
-        );
-        setSports(activeSports);
-        setSelectedSport(activeSports[0] || null);
+        const active = (data.sports || []).filter((s: Sport) => s.available);
+        setSports(active);
+        setSelectedSport(active[0] || null);
       } catch {
         toast.error("Failed to load sports.");
       } finally {
@@ -111,18 +118,14 @@ export default function SearchBox() {
       );
       const data = await res.json();
 
-      let filtered = data.availableSlots || [];
-      const today = new Date().toISOString().split("T")[0];
+      let filtered = (data.availableSlots || []) as { time: string; price: number | null }[];
 
-      if (selectedDate === today) {
+      if (selectedDate === new Date().toISOString().split("T")[0]) {
         const now = new Date();
         const nowMins = now.getHours() * 60 + now.getMinutes();
-
-        filtered = filtered.filter((slot: string) => {
-          const [startTime] = slot.split(" - ");
-          const [hourStr, minStr] = startTime.split(":");
-          const mins = parseInt(hourStr) * 60 + parseInt(minStr);
-          return mins > nowMins;
+        filtered = filtered.filter(({ time }) => {
+          const [hour, min] = time.split(":").map(Number);
+          return hour * 60 + min > nowMins;
         });
       }
 
@@ -139,9 +142,11 @@ export default function SearchBox() {
   const handleBooking = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Please log in to book a slot.");
-      return setTimeout(() => (window.location.href = "/auth/login"), 1500);
+      toast.error("Please log in first.");
+      return setTimeout(() => (window.location.href = "/auth/login"), 1000);
     }
+
+    const price = availableSlots.find((s) => s.time === selectedSlot)?.price ?? null;
 
     setBookingLoading(true);
     try {
@@ -155,20 +160,17 @@ export default function SearchBox() {
           turfId: selectedTurf?._id,
           date: selectedDate,
           slot: selectedSlot,
-          price: selectedSport?.ratePerHour,
+          price,
           sport: selectedSport?.name,
         }),
       });
 
       const data = await res.json();
-      if (!res.ok) return toast.error(`❌ ${data.error || "Booking failed"}`);
+      if (!res.ok) return toast.error(data.error || "Booking failed");
 
-      toast.success("Booking confirmed!");
-      setShowSlots(false);
+      toast.success("🎉 Booking confirmed!");
       setSelectedSlot("");
-      setSelectedTurf(null);
-      setSelectedDate("");
-      setSelectedSport(null);
+      setShowSlots(false);
     } catch {
       toast.error("Booking failed.");
     } finally {
@@ -179,164 +181,105 @@ export default function SearchBox() {
   return (
     <section className="relative z-20 w-full max-w-screen-xl px-2 sm:px-4 mx-auto -mt-14 md:-mt-2 lg:-mt-24">
       <div className="bg-white shadow-xl rounded-2xl p-4 md:p-6 w-full max-w-5xl mx-auto">
-        <div className="flex flex-wrap gap-4 justify-center sm:justify-start mb-4">
-          {/* City */}
-          <div className="flex-1 min-w-[150px]">
-            <select
-              value={selectedCity}
-              onChange={(e) => {
-                setSelectedCity(e.target.value);
-                setSelectedTurf(null);
-                setShowSlots(false);
-              }}
-              className="w-full border px-4 py-2 rounded-md text-sm"
-            >
-              <option value="">Select City</option>
-              {cities.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+
+      {/* Select Boxes */}
+      <div className="flex flex-wrap gap-4 mb-6">
+        <select className="w-full sm:w-auto flex-1 border px-3 py-2 rounded"
+          value={selectedCity}
+          onChange={(e) => setSelectedCity(e.target.value)}
+        >
+          <option value="">Select City</option>
+          {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+
+        <select className="w-full sm:w-auto flex-1 border px-3 py-2 rounded"
+          value={selectedTurf?._id || ""}
+          onChange={(e) => {
+            const turf = turfs.find(t => t._id === e.target.value);
+            setSelectedTurf(turf || null);
+          }}
+          disabled={!selectedCity}
+        >
+          <option value="">Select Turf</option>
+          {turfs.map((t) => <option key={t._id} value={t._id}>{t.name}</option>)}
+        </select>
+
+        <select className="w-full sm:w-auto flex-1 border px-3 py-2 rounded"
+          value={selectedSport?.name || ""}
+          onChange={(e) => {
+            const sport = sports.find(s => s.name === e.target.value);
+            setSelectedSport(sport || null);
+            setSelectedSlot("");
+          }}
+          disabled={!selectedTurf || sports.length === 0}
+        >
+          <option value="">Select Sport</option>
+          {sports.map((s) => (
+            <option key={s.name} value={s.name}>
+              {s.name} ({s.pricing.length} slots)
+            </option>
+          ))}
+        </select>
+
+        <input type="date" value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          min={new Date().toISOString().split("T")[0]}
+          className="w-full sm:w-auto flex-1 border px-3 py-2 rounded"
+        />
+
+        <button onClick={handleSearch} disabled={isLoadingAll}
+          className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded transition"
+        >
+          <Image src={searchIcon} alt="Search" width={16} height={16} className="inline mr-2" />
+          Search
+        </button>
+      </div>
+
+      {/* Slots Section */}
+      {loadingSlots && <p className="text-center text-gray-500">Loading slots...</p>}
+
+      {showSlots && !loadingSlots && (
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Available Slots:</h3>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {availableSlots.map(({ time, price }) => (
+              <button key={time}
+                onClick={() => setSelectedSlot(time)}
+                className={`px-4 py-2 rounded border ${
+                  selectedSlot === time ? "bg-red-600 text-white" : "bg-white hover:bg-gray-100"
+                }`}
+              >
+                {time} - ₹{price ?? "-"}
+              </button>
+            ))}
+            {bookedSlots.map((time) => (
+              <button key={time} disabled className="px-4 py-2 bg-gray-300 text-gray-600 rounded cursor-not-allowed">
+                {time} (Booked)
+              </button>
+            ))}
           </div>
 
-          {/* Turf */}
-          <div className="flex-1 min-w-[150px]">
-            <select
-              value={selectedTurf?._id || ""}
-              onChange={(e) => {
-                const turf = turfs.find((t) => t._id === e.target.value);
-                setSelectedTurf(turf || null);
-                setShowSlots(false);
-              }}
-              className="w-full border px-4 py-2 rounded-md text-sm"
-              disabled={!selectedCity}
-            >
-              <option value="">Select Turf</option>
-              {turfs.map((t) => (
-                <option key={t._id} value={t._id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Sport */}
-          <div className="flex-1 min-w-[150px]">
-  <select
-    value={selectedSport?.name || ""}
-    onChange={(e) => {
-      const selected = sports.find((s) => s.name === e.target.value);
-      setSelectedSport(selected || null);
-      setShowSlots(false);
-    }}
-    className="w-full border px-4 py-2 rounded-md text-sm"
-    disabled={!selectedTurf || sports.length === 0}
-  >
-    <option value="">
-      {sports.length === 0 ? "Select Sport" : "No Sport"}
-    </option>
-    {sports.map((s) => (
-      <option key={s.name} value={s.name}>
-        {s.name} (₹{s.ratePerHour})
-      </option>
-    ))}
-  </select>
-</div>
-
-
-          {/* Date */}
-          <div className="flex-1 min-w-[150px]">
-            <input
-              type="date"
-              min={new Date().toISOString().split("T")[0]}
-              value={selectedDate}
-              onChange={(e) => {
-                setSelectedDate(e.target.value);
-                setShowSlots(false);
-              }}
-              className="w-full border px-4 py-2 rounded-md text-sm"
-            />
-          </div>
-
-          {/* Search Button */}
-          <div className="flex-1 min-w-[150px]">
-            <button
-              onClick={handleSearch}
-              disabled={isLoadingAll}
-              className="w-full bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white font-semibold px-6 py-2.5 rounded-md flex items-center justify-center gap-2 text-sm shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-50"
-            >
-              <Image src={searchIcon} alt="Search" width={16} height={16} />
-              Search
-            </button>
-          </div>
-        </div>
-
-        {/* Slots Section */}
-        <div className="mt-4 transition-all duration-300">
-          {loadingSlots && (
-            <div className="text-center text-gray-600 py-4 animate-pulse">
-              Fetching available slots...
-            </div>
-          )}
-          {showSlots && !loadingSlots && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-center sm:text-left">
-                Available Slots for ₹{selectedSport?.ratePerHour}
-              </h2>
-              <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
-                {availableSlots.map((slot) => (
-                  <button
-                    key={slot}
-                    onClick={() => setSelectedSlot(slot)}
-                    className={`px-4 py-2 rounded-md border ${
-                      selectedSlot === slot
-                        ? "bg-red-600 text-white"
-                        : "bg-white hover:bg-gray-100"
-                    }`}
-                  >
-                    {slot}
-                  </button>
-                ))}
-                {bookedSlots.map((slot) => (
-                  <button
-                    key={slot}
-                    disabled
-                    className="px-4 py-2 bg-gray-300 text-gray-600 rounded-md cursor-not-allowed"
-                  >
-                    {slot} (Booked)
-                  </button>
-                ))}
+          {selectedSlot && (
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p className="text-lg font-medium">
+                Total: ₹{availableSlots.find((s) => s.time === selectedSlot)?.price ?? "-"}
+              </p>
+              <div className="flex gap-3">
+                <button onClick={handleBooking} disabled={bookingLoading}
+                  className={`px-5 py-2 rounded ${
+                    bookingLoading ? "bg-green-400" : "bg-green-600 hover:bg-green-700"
+                  } text-white transition`}
+                >
+                  {bookingLoading ? "Booking..." : "Confirm Booking"}
+                </button>
+                <button onClick={() => setShowSlots(false)} className="bg-gray-400 text-white px-5 py-2 rounded">
+                  Cancel
+                </button>
               </div>
-              {selectedSlot && (
-                <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-3">
-                  <span className="text-lg font-medium">
-                    Total: ₹{selectedSport?.ratePerHour}
-                  </span>
-                  <div className="flex gap-4 flex-col sm:flex-row w-full sm:w-auto">
-                    <button
-                      onClick={handleBooking}
-                      disabled={bookingLoading}
-                      className={`px-6 py-2 rounded-lg w-full sm:w-auto transition ${
-                        bookingLoading
-                          ? "bg-green-400 text-white cursor-not-allowed"
-                          : "bg-green-600 hover:bg-green-700 text-white"
-                      }`}
-                    >
-                      {bookingLoading ? "Booking..." : "Confirm Booking"}
-                    </button>
-                    <button
-                      onClick={() => setShowSlots(false)}
-                      className="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg w-full sm:w-auto"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>
+      )}
       </div>
     </section>
   );

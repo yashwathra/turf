@@ -5,13 +5,19 @@ import { connectDB } from "@/lib/db";
 import Turf from "@/models/Turf";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "GET") return res.status(405).json({ error: "Method Not Allowed" });
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method Not Allowed" });
+  }
 
   try {
     await connectDB();
 
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) return res.status(401).json({ error: "No token provided" });
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ error: "No token provided" });
+    }
 
     let decoded;
     try {
@@ -24,14 +30,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ error: "Access denied. Only owners allowed." });
     }
 
-    // ✅ FIX: ObjectId conversion for proper match
-    const turfs = await Turf.find({
-      ownerId: new mongoose.Types.ObjectId(decoded._id),
-    });
+    const turfs = await Turf.find({ ownerId: new mongoose.Types.ObjectId(decoded._id) });
 
     return res.status(200).json(turfs);
   } catch (error) {
-    console.error("Error fetching owner turfs:", error);
+    console.error("❌ Error fetching owner turfs:", error);
     return res.status(500).json({ error: "Something went wrong" });
   }
 }

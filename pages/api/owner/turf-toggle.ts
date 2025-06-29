@@ -1,3 +1,4 @@
+// pages/api/owner/turf-toggle.ts
 import { connectDB } from "@/lib/db";
 import Turf from "@/models/Turf";
 import jwt from "jsonwebtoken";
@@ -16,8 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await connectDB();
 
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(" ")[1];
+    const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ error: "No token provided" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
@@ -30,11 +30,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Missing turfId or isActive" });
     }
 
-    const turf = await Turf.findOne({ _id: turfId, ownerId: decoded._id });
-    if (!turf) return res.status(404).json({ error: "Turf not found" });
+    const updatedTurf = await Turf.findOneAndUpdate(
+      { _id: turfId, ownerId: decoded._id },
+      { $set: { isActive } },
+      { new: true }
+    );
 
-    turf.isActive = isActive;
-    await turf.save();
+    if (!updatedTurf) {
+      return res.status(404).json({ error: "Turf not found" });
+    }
 
     return res.status(200).json({
       message: `Turf successfully ${isActive ? "activated" : "deactivated"}`,
